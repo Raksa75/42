@@ -6,15 +6,19 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/06 16:06:12 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/06 17:19:57 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/09 12:18:31 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_zero(int n, char *result)
+char	*ft_zero(void)
 {
+	char	*result;
+
 	result = malloc(sizeof(char) * 2);
+	if (!result)
+		return (NULL);
 	result[0] = '0';
 	result[1] = '\0';
 	return (result);
@@ -63,7 +67,7 @@ char	*ft_itoa(int n)
 	i = (long)ft_itoasize(ncopy);
 	if (n == 0)
 	{
-		result = ft_zero(n, result);
+		result = ft_zero();
 		return (result);
 	}
 	result = malloc((sizeof(char) * i) + 1);

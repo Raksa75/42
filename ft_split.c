@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/04 16:58:46 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/06 16:03:58 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/09 11:59:13 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,10 @@ int	ft_count_words(char const *s, char c)
 	return (count);
 }
 
-char	**ft_malloccheck(char **result, char const *s, char c)
+char	**ft_malloccheck(char const *s, char c)
 {
+	char	**result;
+
 	if (!s)
 		return (NULL);
 	result = malloc(sizeof(char *) * (ft_count_words(s, c) + 1));
@@ -45,14 +47,25 @@ char	**ft_malloccheck(char **result, char const *s, char c)
 	return (result);
 }
 
+void	*ft_free(char **result, int j)
+{
+	while (j > 0)
+	{
+		j--;
+		free(result[j]);
+	}
+	free(result);
+	return (NULL);
+}
+
 char	**ft_split(char const *s, char c)
 {
 	char	**result;
 
-	int (wordlen) = 0;
+	int (start) = 0;
 	int (i) = 0;
 	int (j) = 0;
-	result = ft_malloccheck(result, s, c);
+	result = ft_malloccheck(s, c);
 	if (result == NULL)
 		return (NULL);
 	while (s[i] != '\0')
@@ -61,13 +74,13 @@ char	**ft_split(char const *s, char c)
 			i++;
 		if (s[i] != '\0')
 		{
-			while (s[i + wordlen] != '\0' && s[i + wordlen] != c)
-				wordlen++;
-			result[j] = ft_substr(s, i, wordlen);
+			start = i;
+			while (s[i] != '\0' && s[i] != c)
+				i++;
+			result[j] = ft_substr(s, start, i - start);
 			if (!result[j])
-				return (NULL);
+				return (ft_free(result, j));
 			j++;
-			i = i + wordlen;
 		}
 	}
 	result[j] = NULL;
