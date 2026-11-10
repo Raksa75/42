@@ -65,7 +65,7 @@ for string manipulation and output.
 | `ft_putendl_fd` | Writes a string followed by a newline to a file descriptor |
 | `ft_putnbr_fd` | Writes an integer to a file descriptor |
 
-#### Bonus - Linked lists
+#### Part 3 - Linked lists
 
 Functions to create and manipulate singly linked lists, using the following structure:
 
@@ -97,8 +97,7 @@ typedef struct s_list
 ### Compilation
 
 ```bash
-make          # builds libft.a (parts 1 and 2)
-make bonus    # adds the linked list functions to libft.a
+make          # builds libft.a
 make clean    # removes the object files
 make fclean   # removes the object files and libft.a
 make re       # fclean + make
@@ -154,6 +153,8 @@ int	main(void)
 - [cppreference - C language and standard library](https://en.cppreference.com/w/c)
 - [Beej's Guide to C Programming](https://beej.us/guide/bgc/) - pointers, memory, structures
 - [GeeksforGeeks - Inserting a node in a linked list](https://www.geeksforgeeks.org/c/c-program-for-inserting-a-node-in-a-linked-list/) - course that helped me understand linked lists
+- [Apprendre le C - Makefile](https://apprendrelec.com/theory/a22) - course that helped me learn how to write a Makefile
+- [Tripouille/libftTester](https://github.com/Tripouille/libftTester) - tester used to check the library (results and memory leaks with valgrind)
 - The 42 Norm (PDF available on the intranet) and the `norminette` tool
 
 ### Acknowledgements
@@ -165,9 +166,9 @@ This project was made with the help and explanations of **Luka Hartman** and
 
 AI (Claude) was used as a learning and review tool during this project:
 
-- **Debugging**: finding why some files did not compile with '-Wall -Wextra -Werror' missing prototypes in the header, `const` mismatches with `ft_strlen`, syntax errors) and which lines failed the norminette.
-- **Code review**: pointing out bugs in my functions (for example `ft_split`, `ft_atoi`,`ft_putnbr_fd`, `ft_itoa`) and explaining why they were wrong, so I could fix them myself.
-- **Explanations**: understanding structures, pointers, double pointers (`t_list **`) and linked lists before writing the bonus functions.
+- **Debugging**: finding why some files did not compile with `-Wall -Wextra -Werror` (missing prototypes in the header, `const` mismatches with `ft_strlen`, syntax errors) and which lines failed the norminette.
+- **Code review**: pointing out bugs in my functions (for example `ft_split`, `ft_atoi`, `ft_putnbr_fd`, `ft_itoa`) and explaining why they were wrong, so I could fix them myself.
+- **Explanations**: understanding structures, pointers, double pointers (`t_list **`) and linked lists before writing the linked list functions.
 
 The functions were written and corrected by me; the AI explained the problems and, in a few
 cases (such as `ft_lstadd_front`), showed an example that I studied before writing my own version.
