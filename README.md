@@ -169,6 +169,8 @@ AI (Claude) was used as a learning and review tool during this project:
 - **Debugging**: finding why some files did not compile with `-Wall -Wextra -Werror` (missing prototypes in the header, `const` mismatches with `ft_strlen`, syntax errors) and which lines failed the norminette.
 - **Code review**: pointing out bugs in my functions (for example `ft_split`, `ft_atoi`, `ft_putnbr_fd`, `ft_itoa`) and explaining why they were wrong, so I could fix them myself.
 - **Explanations**: understanding structures, pointers, double pointers (`t_list **`) and linked lists before writing the linked list functions.
+- **Makefile**: the AI explained how a Makefile works and provided one that I analysed line by line.
+- **README**: this README was written with the help of the AI.
 
 The functions were written and corrected by me; the AI explained the problems and, in a few
 cases (such as `ft_lstadd_front`), showed an example that I studied before writing my own version.
