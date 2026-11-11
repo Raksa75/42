@@ -6,13 +6,13 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/04 16:58:46 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/09 11:59:13 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/11 16:09:32 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int	ft_count_words(char const *s, char c)
+static int	ft_count_words(char const *s, char c)
 {
 	int	i;
 	int	count;
@@ -35,19 +35,7 @@ int	ft_count_words(char const *s, char c)
 	return (count);
 }
 
-char	**ft_malloccheck(char const *s, char c)
-{
-	char	**result;
-
-	if (!s)
-		return (NULL);
-	result = malloc(sizeof(char *) * (ft_count_words(s, c) + 1));
-	if (!result)
-		return (NULL);
-	return (result);
-}
-
-void	*ft_free(char **result, int j)
+static void	*ft_free(char **result, int j)
 {
 	while (j > 0)
 	{
@@ -58,16 +46,14 @@ void	*ft_free(char **result, int j)
 	return (NULL);
 }
 
-char	**ft_split(char const *s, char c)
+static char **ft_fill(char **result, char const *s, char c)
 {
-	char	**result;
+	int	start;
+	int	i;
+	int	j;
 
-	int (start) = 0;
-	int (i) = 0;
-	int (j) = 0;
-	result = ft_malloccheck(s, c);
-	if (result == NULL)
-		return (NULL);
+	i = 0;
+	j = 0;
 	while (s[i] != '\0')
 	{
 		while (s[i] != '\0' && s[i] == c)
@@ -85,4 +71,16 @@ char	**ft_split(char const *s, char c)
 	}
 	result[j] = NULL;
 	return (result);
+}
+
+char	**ft_split(char const *s, char c)
+{
+	char	**result;
+
+	if (!s)
+		return (NULL);
+	result = malloc(sizeof(char *) * (ft_count_words(s, c) + 1));
+	if (!result)
+		return (NULL);
+	return (ft_fill(result, s, c));
 }
