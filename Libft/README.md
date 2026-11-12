@@ -155,6 +155,7 @@ int	main(void)
 - [GeeksforGeeks - Inserting a node in a linked list](https://www.geeksforgeeks.org/c/c-program-for-inserting-a-node-in-a-linked-list/) - course that helped me understand linked lists
 - [Apprendre le C - Makefile](https://apprendrelec.com/theory/a22) - course that helped me learn how to write a Makefile
 - [Tripouille/libftTester](https://github.com/Tripouille/libftTester) - tester used to check the library (results and memory leaks with valgrind)
+- [42-cli](https://github.com/brunogo25/42-cli) - community command-line tool bundling testers for 42 projects, used as a second tester for the library
 - The 42 Norm (PDF available on the intranet) and the `norminette` tool
 
 ### Acknowledgements
