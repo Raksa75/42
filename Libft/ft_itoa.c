@@ -6,13 +6,13 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/06 16:06:12 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/09 12:18:31 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/12 11:50:33 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_zero(void)
+static char	*ft_zero(void)
 {
 	char	*result;
 
@@ -24,7 +24,7 @@ char	*ft_zero(void)
 	return (result);
 }
 
-int	ft_itoasize(long ncopy)
+static int	ft_itoasize(long ncopy)
 {
 	int	i;
 
@@ -42,7 +42,7 @@ int	ft_itoasize(long ncopy)
 	return (i);
 }
 
-char	*ft_fillitoa(long ncopy, char *result, int i)
+static char	*ft_fillitoa(long ncopy, char *result, int i)
 {
 	if (ncopy < 0)
 	{
@@ -61,9 +61,10 @@ char	*ft_fillitoa(long ncopy, char *result, int i)
 char	*ft_itoa(int n)
 {
 	char	*result;
+	long	i;
+	long	ncopy;
 
-	long (i) = 0;
-	long (ncopy) = n;
+	ncopy = n;
 	i = (long)ft_itoasize(ncopy);
 	if (n == 0)
 	{
@@ -74,7 +75,6 @@ char	*ft_itoa(int n)
 	if (!result)
 		return (NULL);
 	result[i] = '\0';
-	ncopy = (long)n;
 	result = ft_fillitoa(ncopy, result, i);
 	return (result);
 }

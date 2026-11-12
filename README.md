@@ -10,7 +10,7 @@ compilation instructions and resources.
 | Project | Description | Status |
 |---|---|---|
 | [Libft](./Libft) | My own C library: libc functions, string utilities and linked lists | ✅ Done |
-| [ft_printf](./ft_printf) | Recode of the printf function | 🚧 In progress |
+| [ft_printf](./Printf) | Recode of the printf function | 🚧 In progress |
 
 ## Repository structure
 

@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/04 16:58:46 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/11 16:09:32 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/12 11:47:57 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ static void	*ft_free(char **result, int j)
 	return (NULL);
 }
 
-static char **ft_fill(char **result, char const *s, char c)
+static char	**ft_fill(char **result, char const *s, char c)
 {
 	int	start;
 	int	i;
