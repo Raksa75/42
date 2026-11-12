@@ -6,14 +6,14 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/12 12:12:04 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/12 12:35:18 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/12 13:30:13 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdarg.h>
 #include <stdio.h>
 
-int	somme(int count, ...)
+int	ft_somme(int count, ...)
 {
 	va_list args; //type va_list args
 	int	total;
