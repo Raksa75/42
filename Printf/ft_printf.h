@@ -6,16 +6,16 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/12 14:04:08 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/13 17:44:57 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/13 17:53:06 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_PRINTF_H
 # define FT_PRINTF_H
 
-# include "libft.h"
-# include "stdarg.h"
-# include "unistd.h"
+# include <stdlib.h>
+# include <stdarg.h>
+# include <unistd.h>
 
 int	ft_printf(const char *input, ...);
 int	ft_printf_putchar_fd(char c, int fd);

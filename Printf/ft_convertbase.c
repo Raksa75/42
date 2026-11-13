@@ -6,11 +6,10 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/13 15:26:23 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/13 16:58:47 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/13 17:51:12 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
 #include "ft_printf.h"
 
 static char	*ft_size(unsigned long i, int *j)

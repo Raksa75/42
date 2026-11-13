@@ -6,11 +6,10 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/13 16:18:15 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/13 16:54:00 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/13 17:52:10 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
 #include "ft_printf.h"
 
 int	ft_printf_putpoint(void *point)
