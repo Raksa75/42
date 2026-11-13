@@ -1,32 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_somme.c                                         :+:      :+:    :+:   */
+/*   ft_printf_hexapoint.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/11/12 12:12:04 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/12 13:30:13 by nzimmerm         ###   ########.fr       */
+/*   Created: 2026/11/13 14:44:48 by nzimmerm          #+#    #+#             */
+/*   Updated: 2026/11/13 14:51:25 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdarg.h>
-#include <stdio.h>
-
-int	ft_somme(int count, ...)
+int	ft_printf_hexapoint(char *c)
 {
-	va_list args; //type va_list args
-	int	total;
+	char *adresse;
 	int	i;
 
-	va_start(args, count); //commence a args, contient count arguments
-	total = 0;
-	i = 0;
-	while (i < count)
-	{
-		total = total + va_arg(args, int); //regarde args, de type int et avance le curseur
-		i++;
-	}
-	va_end(args); //cloture
-	return (total);
+	i = -1;
+	adresse = malloc(sizeof(char *) + 1);
+	if (!adresse)
+		return (0);
+	adresse = &c;
+	while (adresse[++i] != '\0')
+		ft_printf_putchar_fd(adresse[i], 1);
+	free(adresse);
+	return (i);
 }
