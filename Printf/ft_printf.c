@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/12 14:02:38 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/13 17:51:23 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/13 17:54:11 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static int	ft_conv(char c, va_list *args)
 		return (ft_printf_putstr_fd(va_arg(*args, char *), 1));
 	else if (c == 'p')
 		return (ft_printf_putpoint(va_arg(*args, char *)));
-	else if (c == 'd' || input[i + 1] == 'i')
+	else if (c == 'd' || c == 'i')
 		return (ft_printf_putnbr_fd(va_arg(*args, int), 1));
 	else if (c == 'u')
 		return (ft_printf_putnbr_fd(va_arg(*args, unsigned int), 1));
