@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/12 14:02:38 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/13 13:35:38 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/13 17:12:51 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,42 +15,43 @@
 
 int	ft_printf(const char *input, ...)
 {
-	va_list	args; //declaration de args
-	int	i;
-	int	total;
+	va_list	args;
+	int		i;
+	int		total;
 
-	va_start(args, input); //check
+	va_start(args, input);
 	total = 0;
 	i = 0;
-	while (input[i] != '\0') //parcourir la string d'entre
+	while (input[i] != '\0')
 	{
-		if (type[i] == '%') //si flag alors, on donne le type et check la variable associe pour la print
+		if (input[i] == '%')
 		{
-			if (type[i + 1] == 'c')
+			if (input[i + 1] == 'c')
 				total = total + ft_printf_putchar_fd(va_arg(args, int), 1);
-			else if (type[i + 1] == 's')
+			else if (input[i + 1] == 's')
 				total += ft_printf_putstr_fd(va_arg(args, char *), 1);
-			else if (type[i + 1] == 'p')
-				total == 
-			else if (type[i + 1] == 'd' || type[i] == 'i')
-				total += ft_printf_putnbr(va_arg(args, int), 1);
-			else if (type[i + 1] == 'u')
-				total +=
-			else if (type[i + 1] == 'x')
-				total +=
-			else if (type[i + 1] == 'X')
-				total +=
-			else if (type[i + 1] == '%')
+			else if (input[i + 1] == 'p')
+				total += ft_printf_putpoint(va_arg(args, char *));
+			else if (input[i + 1] == 'd' || input[i+ 1] == 'i')
+				total += ft_printf_putnbr_fd(va_arg(args, int), 1);
+			else if (input[i + 1] == 'u')
+				total += ft_printf_putnbr_fd(va_arg(args, unsigned int), 1);
+			else if (input[i + 1] == 'x')
+				total += ft_convertbase(va_arg(args, unsigned int), 0);
+			else if (input[i + 1] == 'X')
+				total += ft_convertbase(va_arg(args, unsigned int), 1);
+			else if (input[i + 1] == '%')
 				total += ft_printf_putchar_fd('%', 1);
 			else
 				total += ft_printf_putchar_fd('%', 1);
-			i = i + 2; //on saute %x (deux char)
+			i = i + 2;
 		}
 		else
 		{
-			total += ft_printf_putchar_fd(type[i], 1); //si pas de flag on print
-			i++; //char basic, on avance
+			total += ft_printf_putchar_fd(input[i], 1);
+			i++;
+		}
 	}
-	va_end(args); //cloture
-	return (total); //return taille du print
+	va_end(args);
+	return (total);
 }

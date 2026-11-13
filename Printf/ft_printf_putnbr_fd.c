@@ -6,38 +6,25 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/09 10:14:16 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/13 14:42:25 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/13 17:13:12 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+#include "ft_printf.h"
 
-static int	ft_printsize(long nb)
+int	ft_printf_putnbr_fd(long n, int fd)
 {
-	int	i;
+	int		i;
 
 	i = 0;
-	while (nb >= 10)
+	if (n < 0)
 	{
-		nb /= 10;
-		i++;
+		i += ft_printf_putchar_fd('-', fd);
+		n = -n;
 	}
-	return (i)
-}
-
-int	ft_printf_putnbr_fd(int n, int fd)
-{
-	long	nb;
-	int	i;
-
-	nb = n;
-	if (nb < 0)
-	{
-		ft_printf_putchar_fd('-', fd);
-		nb = -nb;
-	}
-	if (nb >= 10)
-		ft_printf_putnbr_fd(nb / 10, fd);
-	ft_printf_putchar_fd((nb % 10 + '0'), fd);
-	return (i + ft_printsize(nb));
+	if (n >= 10)
+		i += ft_printf_putnbr_fd(n / 10, fd);
+	i += ft_printf_putchar_fd((n % 10 + '0'), fd);
+	return (i);
 }
