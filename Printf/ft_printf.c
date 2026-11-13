@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/12 14:02:38 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/12 15:24:40 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/13 13:35:38 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,12 @@ int	ft_printf(const char *input, ...)
 	int	i;
 	int	total;
 
-	va_start(args, input);
+	va_start(args, input); //check
 	total = 0;
 	i = 0;
-	while (input[i] != '\0')
+	while (input[i] != '\0') //parcourir la string d'entre
 	{
-		if (type[i] == '%')
+		if (type[i] == '%') //si flag alors, on donne le type et check la variable associe pour la print
 		{
 			if (type[i + 1] == 'c')
 				total = total + ft_printf_putchar_fd(va_arg(args, int), 1);
@@ -44,11 +44,13 @@ int	ft_printf(const char *input, ...)
 				total += ft_printf_putchar_fd('%', 1);
 			else
 				total += ft_printf_putchar_fd('%', 1);
-			i++;
+			i = i + 2; //on saute %x (deux char)
 		}
 		else
-			total += ft_printf_putchar_fd(type[i], 1);
+		{
+			total += ft_printf_putchar_fd(type[i], 1); //si pas de flag on print
+			i++; //char basic, on avance
 	}
-	va_end(args);
-	return (total);
+	va_end(args); //cloture
+	return (total); //return taille du print
 }

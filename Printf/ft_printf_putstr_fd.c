@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putstr_fd.c                                     :+:      :+:    :+:   */
+/*   ft_printf_putstr_fd.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/09 09:40:25 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/09 12:16:45 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/13 13:37:05 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	ft_putstr_fd(char *s, int fd)
+int	ft_printf_putstr_fd(char *s, int fd)
 {
 	int	i;
 
@@ -20,7 +20,6 @@ void	ft_putstr_fd(char *s, int fd)
 		return ;
 	i = -1;
 	while (s[++i] != '\0')
-	{
 		ft_putchar_fd(s[i], fd);
-	}
+	return (i);
 }

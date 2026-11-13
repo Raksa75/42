@@ -6,29 +6,44 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/09 10:14:16 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/12 15:42:58 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/13 13:50:08 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 #include "ft_printf.h"
 
-void	ft_printf_putnbr_fd(int n, int fd)
+int	ft_printf_putnbr_fd(int n, int fd)
 {
 	long	nb;
 	int	i;
+	int	size;
+	char	buffer[12];
 
 	i = 0;
+	size = 0;
 	nb = n;
+
+	if (nb == 0)
+	{
+		ft_printf_putchar_fd('0', fd);
+		return (1);
+	}
 	if (nb < 0)
 	{
 		ft_putchar_fd('-', fd);
 		nb = -nb;
-		i++;
+		size++;
 	}
-	if (nb >= 10)
-		i += ft_putnbr_fd(nb / 10, fd);
-	ft_putchar_fd((nb % 10 + '0'), fd);
-	i++;
-	return (1);
+	while (nb > 0)
+	{
+		bufffer[i++] = nb % 10 + '0';\
+		nb = nb / 10;
+		size++;
+	}
+	while (--1 >= 0)
+	{
+		ft_printf_putchar(buffer[i], 1);
+	}
+	return (size);
 }
