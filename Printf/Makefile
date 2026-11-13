@@ -1,4 +1,4 @@
-NAME	= ft_printf.a
+NAME	= libftprintf.a
 
 CC		=cc
 CFLAGS	= -Wall -Wextra -Werror
@@ -12,7 +12,7 @@ SRCS	= ft_printf.c \
 		  ft_printf_putpoint.c \
 		  ft_convertbase.c
 
-OBJS	= $(SRCS:.c=o)
+OBJS	= $(SRCS:.c=.o)
 
 all: $(NAME)
 
