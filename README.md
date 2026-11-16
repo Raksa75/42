@@ -10,7 +10,8 @@ compilation instructions and resources.
 | Project | Description | Status |
 |---|---|---|
 | [Libft](./libft) | My own C library: libc functions, string utilities and linked lists | ✅ Done |
-| [ft_printf](./ft_printf) | Recode of the `printf()` function, using variadic functions | ✅ Done |
+| [ft_printf](./Printf) | Recode of the `printf()` function, using variadic functions | ✅ Done |
+| [get_next_line](./GetNextLine) | Read a file line by line from a file descriptor | 🚧 In progress |
 
 ## Repository structure
 
