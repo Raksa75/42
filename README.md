@@ -9,18 +9,23 @@ compilation instructions and resources.
 
 | Project | Description | Status |
 |---|---|---|
-| [Libft](./Libft) | My own C library: libc functions, string utilities and linked lists | ✅ Done |
-| [ft_printf](./Printf) | Recode of the printf function | 🚧 In progress |
+| [Libft](./libft) | My own C library: libc functions, string utilities and linked lists | ✅ Done |
+| [ft_printf](./ft_printf) | Recode of the `printf()` function, using variadic functions | ✅ Done |
 
 ## Repository structure
 
 ```
 .
 ├── README.md        # this file
-└── libft/           # each project in its own folder
+├── libft/           # each project in its own folder
+│   ├── README.md
+│   ├── Makefile
+│   ├── libft.h
+│   └── ft_*.c
+└── ft_printf/
     ├── README.md
     ├── Makefile
-    ├── libft.h
+    ├── ft_printf.h
     └── ft_*.c
 ```
 
@@ -30,7 +35,7 @@ Clone the repository, then go into a project folder and build it with `make`:
 
 ```bash
 git clone <repository-url>
-cd <repository-name>/libft
+cd <repository-name>/ft_printf
 make
 ```
 
