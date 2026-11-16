@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/12 14:02:38 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/13 17:54:11 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/16 11:26:55 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ int	ft_printf(const char *input, ...)
 	int		i;
 	int		total;
 
+	if (!input)
+		return (-1);
 	va_start(args, input);
 	total = 0;
 	i = 0;
