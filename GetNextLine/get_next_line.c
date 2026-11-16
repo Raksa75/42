@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/16 12:17:20 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/16 15:30:17 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/16 15:47:00 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@ int	ft_gnl_strlen(char *s)
 {
 	int	i;
 
+	if (!s)
+		return (0);
 	i = 0;
 	while (s[i] != '\0')
 		i++;
@@ -40,15 +42,16 @@ char	*ft_gnl_strjoin(char *s1, char *s2)
 	int	j;
 	char	*result;
 
-	if (!s2)
-		return (NULL);
 	i = -1;
 	j = -1;
 	result = malloc(sizeof(char) * (ft_gnl_strlen(s1) + ft_gnl_strlen(s2)) + 1);
 	if (!result)
 		return (NULL);
-	while (s1[++i] != '\0')
-		result[++j] = s1[i];
+	if (s1)
+	{
+		while (s1[++i] != '\0')
+			result[++j] = s1[i];
+	}
 	i = -1;
 	while (s2[++i] != '\0')
 		result[++j] = s2[i];
@@ -60,7 +63,7 @@ char	*ft_gnl_strjoin(char *s1, char *s2)
 char	*ft_gnl_get_line(char *reserve)
 {
 	char	*result;
-	int	i;
+	int		i;
 
 	i = 0;
 	while (reserve[i] != '\n' && reserve[i] != '\0')
@@ -79,8 +82,8 @@ char	*ft_gnl_get_line(char *reserve)
 char	*ft_gnl_keep_rest(char *reserve)
 {
 	char	*result;
-	int	i;
-	int	j;
+	int		i;
+	int		j;
 
 	i = 0;
 	j = 0;
@@ -91,10 +94,12 @@ char	*ft_gnl_keep_rest(char *reserve)
 	}
 	while (reserve[i] != '\n')
 		i++;
-	i++;
 	result = malloc(sizeof(char) * (ft_gnl_strlen(reserve) - i));
 	if (!result)
+	{
+		free(reserve);
 		return (NULL);
+	}
 	while (reserve[++i] != '\0')
 		result[j++] = reserve[i];
 	result[j] = '\0';
@@ -104,11 +109,11 @@ char	*ft_gnl_keep_rest(char *reserve)
 
 char	*get_next_line(int fd)
 {
+	char		*ligne;
 	static char	*reserve;
-	char	buf[BUFFER_SIZE + 1];
-	int	n;
+	char		buf[BUFFER_SIZE + 1];
+	int			n;
 
-	i = 0;
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	while (ft_gnl_strchr(reserve, '\n') == 0)
@@ -117,7 +122,8 @@ char	*get_next_line(int fd)
 		if (n == -1)
 		{
 			free(reserve);
-			return (reserve = NULL);
+			reserve = NULL;
+			return (NULL);
 		}
 		if (n == 0)
 			break;
@@ -130,6 +136,10 @@ char	*get_next_line(int fd)
 	if (!reserve || reserve[0] == '\0')
 	{
 		free(reserve);
+		reserve = NULL;
 		return (NULL);
 	}
+	ligne = ft_gnl_get_line(reserve);
+	reserve = ft_gnl_keep_reste(reserve);
+	return (ligne);
 }
