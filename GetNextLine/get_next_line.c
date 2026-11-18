@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/16 12:17:20 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/18 13:45:50 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/18 14:12:23 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,6 @@ char	*get_next_line(int fd)
 		return (NULL);
 	}
 	ligne = ft_gnl_get_line(reserve);
-	reserve = ft_gnl_keep_reste(reserve);
+	reserve = ft_gnl_keep_rest(reserve);
 	return (ligne);
 }

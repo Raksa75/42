@@ -6,11 +6,11 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/16 15:47:31 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/18 13:56:00 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/18 14:11:48 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line_utils.h"
+#include "get_next_line.h"
 
 int	ft_gnl_strchr(char *s, int c)
 {
