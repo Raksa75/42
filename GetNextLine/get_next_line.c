@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/16 12:17:20 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/18 14:12:23 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/18 14:13:34 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ char	*get_next_line(int fd)
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	reserve = ft_gn_read(fd, reserve);
+	reserve = ft_gnl_read(fd, reserve);
 	if (!reserve || reserve[0] == '\0')
 	{
 		free(reserve);
