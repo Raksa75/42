@@ -4,7 +4,7 @@
 #         ./run.sh --no-valgrind
 
 cd "$(dirname "$0")" || exit 1
-SRC="../../GetNextLine"
+SRC="${PROJECT_DIR:-../../GetNextLine}"
 TMP="$(mktemp -d)"
 STATUS=0
 GREEN="\033[32m"; RED="\033[31m"; YELLOW="\033[33m"; BOLD="\033[1m"; RESET="\033[0m"

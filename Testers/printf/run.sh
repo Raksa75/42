@@ -4,12 +4,18 @@
 #         ./run.sh --no-valgrind
 
 cd "$(dirname "$0")" || exit 1
-SRC="../../Printf"
+SRC="${PROJECT_DIR:-../../Printf}"
 TMP="$(mktemp -d)"
 STATUS=0
 GREEN="\033[32m"; RED="\033[31m"; YELLOW="\033[33m"; BOLD="\033[1m"; RESET="\033[0m"
 
-cleanup() { make -C "$SRC" fclean >/dev/null 2>&1; rm -rf "$TMP"; }
+# si libftprintf.a existait deja avant le test, on le laisse ; sinon on nettoie tout
+HAD_LIB=0
+[ -f "$SRC/libftprintf.a" ] && HAD_LIB=1
+cleanup() {
+	[ $HAD_LIB -eq 0 ] && make -C "$SRC" fclean >/dev/null 2>&1
+	rm -rf "$TMP"
+}
 trap cleanup EXIT
 
 echo -e "${BOLD}=== ft_printf - Makefile ===${RESET}"
