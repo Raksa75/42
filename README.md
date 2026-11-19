@@ -12,6 +12,7 @@ compilation instructions and resources.
 | [Libft](./Libft) | My own C library: libc functions, string utilities and linked lists | ✅ Done |
 | [ft_printf](./Printf) | Recode of the `printf()` function, using variadic functions | ✅ Done |
 | [get_next_line](./GetNextLine) | Read a file line by line from a file descriptor | ✅ Done |
+| [Testers](./Testers) | My own testers for the projects above, with the `raksa` menu | ✅ Done |
 
 ## Repository structure
 
@@ -28,11 +29,16 @@ compilation instructions and resources.
 │   ├── Makefile
 │   ├── ft_printf.h
 │   └── *.c
-└── GetNextLine/
+├── GetNextLine/
+│   ├── README.md
+│   ├── get_next_line.h
+│   ├── get_next_line.c
+│   └── get_next_line_utils.c
+└── Testers/                     # testers for the three projects
     ├── README.md
-    ├── get_next_line.h
-    ├── get_next_line.c
-    └── get_next_line_utils.c
+    ├── raksa.sh                 # the "raksa" menu
+    ├── install.sh
+    └── libft/  printf/  gnl/
 ```
 
 ## Usage
@@ -62,6 +68,28 @@ cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 get_next_line.c get_next_line_utils.c
 ```
 
 Every project compiles with `cc -Wall -Wextra -Werror`. See each project's README for details.
+
+## Testing
+
+The [Testers](./Testers) folder checks each project: Makefile, Norm, results compared with
+the original functions, and memory leaks with `valgrind`.
+
+Install the `raksa` command once:
+
+```bash
+./Testers/install.sh
+```
+
+Then type `raksa` from any folder: a menu opens, to choose with the arrow keys and Enter
+which project and which folder to test. It works on Linux and on Windows with WSL.
+
+```bash
+raksa              # opens the menu
+raksa ici          # tests the project of the current folder
+raksa all          # tests the three projects of this repo
+```
+
+See the [Testers README](./Testers/README.md) for all the options.
 
 ## About 42
 

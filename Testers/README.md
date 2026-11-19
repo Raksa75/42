@@ -23,7 +23,8 @@ folder. Open a new terminal after the installation. If the repository is moved, 
 
 ## Usage
 
-Type `raksa` to open the menu. It asks step by step:
+Type `raksa` to open the menu. Choose with the **arrow keys** (or `j`/`k`, or the number of
+the line) and confirm with **Enter**. It asks step by step:
 
 1. what to do: test one project, test the three projects of this repo, or show the help;
 2. if a project is found in the current folder, whether to test it;

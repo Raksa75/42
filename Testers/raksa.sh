@@ -51,13 +51,54 @@ detect() {
 	fi
 }
 
-# pose une question oui/non ; $2 = reponse par defaut (o ou n)
+# remet le curseur visible en quittant (meme avec ctrl+c)
+trap 'tput cnorm 2>/dev/null; echo; exit 130' INT
+trap 'tput cnorm 2>/dev/null' EXIT
+
+# Menu a fleches.
+#   select_menu <choix par defaut> "Question" "option 1" "option 2" ...
+# Haut/Bas (ou k/j) pour bouger, Entree pour valider, 1-9 pour aller
+# directement a une option. Le numero choisi (a partir de 0) est mis
+# dans MENU_RESULT.
+select_menu() {
+	local selected="$1" title="$2"
+	shift 2
+	local options=("$@") n=$# key rest i
+	echo -e "\n  ${BOLD}$title${RESET}  ${DIM}(fleches + Entree)${RESET}\n"
+	tput civis 2>/dev/null
+	while true; do
+		for i in "${!options[@]}"; do
+			if [ "$i" -eq "$selected" ]; then
+				echo -e "\r  ${CYAN}${BOLD}❯ ${options[$i]}${RESET}\033[K"
+			else
+				echo -e "\r    ${options[$i]}${RESET}\033[K"
+			fi
+		done
+		IFS= read -rsn1 key || exit 0
+		case "$key" in
+			$'\x1b')
+				read -rsn2 -t 0.05 rest
+				case "$rest" in
+					'[A'|'OA') selected=$(( (selected - 1 + n) % n )) ;;
+					'[B'|'OB') selected=$(( (selected + 1) % n )) ;;
+				esac ;;
+			k) selected=$(( (selected - 1 + n) % n )) ;;
+			j) selected=$(( (selected + 1) % n )) ;;
+			[1-9]) [ "$key" -le "$n" ] && selected=$((key - 1)) ;;
+			"") break ;;
+		esac
+		printf "\033[%dA" "$n"
+	done
+	tput cnorm 2>/dev/null
+	MENU_RESULT=$selected
+}
+
+# question oui/non ; $2 = reponse par defaut (o ou n)
 ask_yes_no() {
-	local answer hint
-	if [ "$2" = "o" ]; then hint="O/n"; else hint="o/N"; fi
-	read -r -p "$(echo -e "  ${BOLD}?${RESET} $1 ($hint) ")" answer || exit 0
-	[ -z "$answer" ] && answer="$2"
-	[[ "$answer" =~ ^[oOyY] ]]
+	local def=0
+	[ "$2" = "n" ] && def=1
+	select_menu "$def" "$1" "Oui" "Non"
+	[ "$MENU_RESULT" -eq 0 ]
 }
 
 pause() {
@@ -155,51 +196,42 @@ ask_valgrind() {
 
 # demande quel projet tester ; ecrit le resultat dans CHOSEN_PROJECT
 ask_project() {
-	local choice
 	CHOSEN_PROJECT=""
-	echo -e "\n  ${BOLD}Quel projet veux-tu tester ?${RESET}\n"
-	echo -e "    ${BOLD}1${RESET}) Libft"
-	echo -e "    ${BOLD}2${RESET}) ft_printf"
-	echo -e "    ${BOLD}3${RESET}) get_next_line"
-	echo -e "    ${BOLD}r${RESET}) Retour\n"
-	while true; do
-		read -r -p "$(echo -e "  ${BOLD}>${RESET} ")" choice || exit 0
-		case "$choice" in
-			1) CHOSEN_PROJECT="libft"; return 0 ;;
-			2) CHOSEN_PROJECT="printf"; return 0 ;;
-			3) CHOSEN_PROJECT="gnl"; return 0 ;;
-			r|R) return 1 ;;
-			*) echo -e "  ${RED}Tape 1, 2, 3 ou r.${RESET}" ;;
-		esac
-	done
+	select_menu 0 "Quel projet veux-tu tester ?" \
+		"Libft" "ft_printf" "get_next_line" "${DIM}Retour${RESET}"
+	case "$MENU_RESULT" in
+		0) CHOSEN_PROJECT="libft" ;;
+		1) CHOSEN_PROJECT="printf" ;;
+		2) CHOSEN_PROJECT="gnl" ;;
+		*) return 1 ;;
+	esac
 }
 
 # demande quel dossier tester ; ecrit le resultat dans CHOSEN_DIR
 ask_dir() {
-	local project="$1" choice path repo_dir
+	local project="$1" path repo_dir
 	repo_dir="$(default_dir "$project")"
 	CHOSEN_DIR=""
-	echo -e "\n  ${BOLD}Quel dossier ?${RESET}\n"
-	echo -e "    ${BOLD}1${RESET}) Le dossier actuel     ${DIM}$PWD${RESET}"
-	echo -e "    ${BOLD}2${RESET}) Celui de ton depot    ${DIM}$repo_dir${RESET}"
-	echo -e "    ${BOLD}3${RESET}) Un autre dossier      ${DIM}(tu tapes le chemin, Tab pour completer)${RESET}"
-	echo -e "    ${BOLD}r${RESET}) Retour\n"
 	while true; do
-		read -r -p "$(echo -e "  ${BOLD}>${RESET} ")" choice || exit 0
-		case "$choice" in
-			1) path="$PWD" ;;
-			2) path="$repo_dir" ;;
-			3) read -r -e -p "$(echo -e "  ${BOLD}Chemin :${RESET} ")" path || exit 0
+		select_menu 0 "Quel dossier ?" \
+			"Le dossier actuel     ${DIM}$PWD${RESET}" \
+			"Celui de ton depot    ${DIM}$repo_dir${RESET}" \
+			"Un autre dossier      ${DIM}(tu tapes le chemin, Tab pour completer)${RESET}" \
+			"${DIM}Retour${RESET}"
+		case "$MENU_RESULT" in
+			0) path="$PWD" ;;
+			1) path="$repo_dir" ;;
+			2) echo
+			   read -r -e -p "$(echo -e "  ${BOLD}Chemin :${RESET} ")" path || exit 0
 			   path="${path/#\~/$HOME}" ;;
-			r|R) return 1 ;;
-			*) echo -e "  ${RED}Tape 1, 2, 3 ou r.${RESET}"; continue ;;
+			*) return 1 ;;
 		esac
 		if [ ! -d "$path" ]; then
-			echo -e "  ${RED}Ce dossier n'existe pas : $path${RESET}"
+			echo -e "\n  ${RED}Ce dossier n'existe pas : $path${RESET}"
 			continue
 		fi
 		if [ ! -f "$path/$(project_header "$project")" ]; then
-			echo -e "  ${YELLOW}Attention : pas de $(project_header "$project") dans ce dossier.${RESET}"
+			echo -e "\n  ${YELLOW}Attention : pas de $(project_header "$project") dans ce dossier.${RESET}"
 			ask_yes_no "Le tester quand meme ?" "n" || continue
 		fi
 		CHOSEN_DIR="$(readlink -f "$path")"
@@ -214,7 +246,7 @@ test_wizard() {
 	detected="$(detect "$PWD")"
 	if [ -n "$detected" ]; then
 		echo -e "\n  ${GREEN}J'ai trouve un $(project_name "$detected") dans le dossier actuel :${RESET}"
-		echo -e "  ${DIM}$PWD${RESET}\n"
+		echo -e "  ${DIM}$PWD${RESET}"
 		if ask_yes_no "Tu veux tester celui-la ?" "o"; then
 			CHOSEN_PROJECT="$detected"
 			CHOSEN_DIR="$PWD"
@@ -224,7 +256,6 @@ test_wizard() {
 		ask_project || return
 		ask_dir "$CHOSEN_PROJECT" || return
 	fi
-	echo
 	ask_valgrind
 	echo -e "\n  ${BOLD}C'est parti :${RESET} $(project_name "$CHOSEN_PROJECT") ${DIM}($CHOSEN_DIR)${RESET}"
 	run_one "$CHOSEN_PROJECT" "$CHOSEN_DIR"
@@ -232,18 +263,13 @@ test_wizard() {
 }
 
 after_test() {
-	local choice
 	while true; do
-		echo -e "\n  ${BOLD}Et maintenant ?${RESET}\n"
-		echo -e "    ${BOLD}1${RESET}) Relancer le meme test"
-		echo -e "    ${BOLD}2${RESET}) Revenir au menu"
-		echo -e "    ${BOLD}q${RESET}) Quitter\n"
-		read -r -p "$(echo -e "  ${BOLD}>${RESET} ")" choice || exit 0
-		case "$choice" in
-			1) run_one "$LAST_PROJECT" "$LAST_DIR" ;;
-			2) return ;;
-			q|Q) goodbye ;;
-			*) echo -e "  ${RED}Tape 1, 2 ou q.${RESET}" ;;
+		select_menu 0 "Et maintenant ?" \
+			"Relancer le meme test" "Revenir au menu" "Quitter"
+		case "$MENU_RESULT" in
+			0) run_one "$LAST_PROJECT" "$LAST_DIR" ;;
+			1) return ;;
+			*) goodbye ;;
 		esac
 	done
 }
@@ -254,21 +280,16 @@ goodbye() {
 }
 
 main_menu() {
-	local choice
 	while true; do
 		banner
-		echo -e "  ${BOLD}Que veux-tu faire ?${RESET}\n"
-		echo -e "    ${BOLD}1${RESET}) Tester un projet"
-		echo -e "    ${BOLD}2${RESET}) Tester les trois projets de mon depot"
-		echo -e "    ${BOLD}3${RESET}) Aide"
-		echo -e "    ${BOLD}q${RESET}) Quitter\n"
-		read -r -p "$(echo -e "  ${BOLD}>${RESET} ")" choice || goodbye
-		case "$choice" in
-			1) test_wizard ;;
-			2) echo; ask_valgrind; run_all; pause ;;
-			3) echo; usage; pause ;;
-			q|Q) goodbye ;;
-			*) ;;
+		select_menu 0 "Que veux-tu faire ?" \
+			"Tester un projet" "Tester les trois projets de mon depot" \
+			"Aide" "Quitter"
+		case "$MENU_RESULT" in
+			0) test_wizard ;;
+			1) echo; ask_valgrind; run_all; pause ;;
+			2) echo; usage; pause ;;
+			*) goodbye ;;
 		esac
 	done
 }
