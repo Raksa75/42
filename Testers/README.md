@@ -104,5 +104,3 @@ Testers/
 ├── printf/             # run.sh + test_printf.c
 └── gnl/                # run.sh + test_gnl.c
 ```
-
-These testers were written with the help of AI (Claude).
