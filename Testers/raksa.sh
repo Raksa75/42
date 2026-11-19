@@ -148,6 +148,7 @@ usage() {
 	echo -e "  ${CYAN}raksa printf${RESET} [dossier]  teste un ft_printf"
 	echo -e "  ${CYAN}raksa gnl${RESET} [dossier]     teste un get_next_line"
 	echo -e "  ${CYAN}raksa all${RESET}               teste les trois projets du depot"
+	echo -e "  ${CYAN}raksa log${RESET}               affiche le log du dernier test"
 	echo -e "\n  Options : ${CYAN}--no-valgrind${RESET} (plus rapide, sans les fuites), ${CYAN}-h${RESET} (aide)"
 }
 
@@ -265,13 +266,30 @@ test_wizard() {
 after_test() {
 	while true; do
 		select_menu 0 "Et maintenant ?" \
-			"Relancer le meme test" "Revenir au menu" "Quitter"
+			"Voir le log (detail de chaque test)" "Relancer le meme test" \
+			"Revenir au menu" "Quitter"
 		case "$MENU_RESULT" in
-			0) run_one "$LAST_PROJECT" "$LAST_DIR" ;;
-			1) return ;;
+			0) show_log ;;
+			1) run_one "$LAST_PROJECT" "$LAST_DIR" ;;
+			2) return ;;
 			*) goodbye ;;
 		esac
 	done
+}
+
+# affiche le dernier log (less pour defiler, q pour quitter)
+show_log() {
+	local f="$TESTERS/logs/dernier.log"
+	if [ ! -e "$f" ]; then
+		echo -e "\n  ${YELLOW}Aucun log pour l'instant : lance d'abord un test.${RESET}"
+		return 1
+	fi
+	echo -e "\n  ${DIM}Log : $(readlink -f "$f")${RESET}"
+	if command -v less >/dev/null 2>&1 && [ -t 1 ]; then
+		less -R "$f"
+	else
+		cat "$f"
+	fi
 }
 
 goodbye() {
@@ -284,11 +302,14 @@ main_menu() {
 		banner
 		select_menu 0 "Que veux-tu faire ?" \
 			"Tester un projet" "Tester les trois projets de mon depot" \
-			"Aide" "Quitter"
+			"Voir le dernier log" "Aide" "Quitter"
 		case "$MENU_RESULT" in
 			0) test_wizard ;;
-			1) echo; ask_valgrind; run_all; pause ;;
-			2) echo; usage; pause ;;
+			1) echo; ask_valgrind; run_all
+			   echo -e "\n  ${DIM}Les logs des trois projets sont dans $TESTERS/logs/${RESET}"
+			   pause ;;
+			2) show_log || pause ;;
+			3) echo; usage; pause ;;
 			*) goodbye ;;
 		esac
 	done
@@ -318,5 +339,6 @@ case "${ARGS[0]}" in
 		run_one "${ARGS[0]}" "${ARGS[1]:-$(default_dir "${ARGS[0]}")}"
 		;;
 	all) run_all ;;
+	log) show_log ;;
 	*) echo -e "${RED}Argument inconnu : ${ARGS[0]}${RESET}\n"; usage; exit 1 ;;
 esac

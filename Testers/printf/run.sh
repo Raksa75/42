@@ -1,15 +1,14 @@
 #!/bin/bash
 # Testeur ft_printf
-# Usage : ./run.sh              (tests + valgrind si disponible)
-#         ./run.sh --no-valgrind
+# Usage : ./run.sh [--no-valgrind]
+# Le dossier teste est ../../Printf, ou celui donne par PROJECT_DIR.
 
 cd "$(dirname "$0")" || exit 1
+source ../common/common.sh
 SRC="${PROJECT_DIR:-../../Printf}"
 TMP="$(mktemp -d)"
-STATUS=0
-GREEN="\033[32m"; RED="\033[31m"; YELLOW="\033[33m"; BOLD="\033[1m"; RESET="\033[0m"
+[ "$1" = "--no-valgrind" ] && NO_VALGRIND=1
 
-# si libftprintf.a existait deja avant le test, on le laisse ; sinon on nettoie tout
 HAD_LIB=0
 [ -f "$SRC/libftprintf.a" ] && HAD_LIB=1
 cleanup() {
@@ -18,62 +17,29 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo -e "${BOLD}=== ft_printf - Makefile ===${RESET}"
-if ! make -C "$SRC" >"$TMP/make.log" 2>&1; then
-	echo -e "  ${RED}[KO]${RESET}    make a echoue :"
-	cat "$TMP/make.log"
-	exit 1
-fi
-if [ -f "$SRC/libftprintf.a" ]; then
-	echo -e "  ${GREEN}[OK]${RESET}    make cree libftprintf.a"
-else
-	echo -e "  ${RED}[KO]${RESET}    libftprintf.a n'a pas ete cree a la racine"; exit 1
-fi
-if make -C "$SRC" 2>&1 | grep -qE "Nothing to be done|is up to date"; then
-	echo -e "  ${GREEN}[OK]${RESET}    pas de relink (un 2e make ne refait rien)"
-else
-	echo -e "  ${RED}[KO]${RESET}    relink : un 2e make recompile quelque chose"; STATUS=1
-fi
-for rule in clean fclean re all; do
-	if make -C "$SRC" -n "$rule" >/dev/null 2>&1; then
-		echo -e "  ${GREEN}[OK]${RESET}    regle '$rule' presente"
-	else
-		echo -e "  ${RED}[KO]${RESET}    regle '$rule' absente"; STATUS=1
-	fi
-done
+log_init "printf" "$SRC" "$1"
+say "${BOLD}${CYAN}ft_printf${RESET} ${DIM}($(cd "$SRC" && pwd))${RESET}"
 
-echo -e "\n${BOLD}=== ft_printf - Norminette ===${RESET}"
-if command -v norminette >/dev/null 2>&1; then
-	if norminette "$SRC"/*.c "$SRC"/*.h >"$TMP/norm.log" 2>&1; then
-		echo -e "  ${GREEN}[OK]${RESET}    norminette"
-	else
-		echo -e "  ${RED}[KO]${RESET}    norminette :"
-		grep -v "OK!" "$TMP/norm.log" | sed 's/^/      /'
-		STATUS=1
-	fi
-else
-	echo -e "  ${YELLOW}[--]${RESET}    norminette non installee, verification ignoree"
-fi
+check_makefile "$SRC" "libftprintf.a" || { log_end; exit 1; }
+NORM_FILES=$(find "$SRC" \( -name '*.c' -o -name '*.h' \) -not -path '*/.git/*')
+check_norm $NORM_FILES
+
+title "Fonctions externes"
+check_externals "malloc free write" "$SRC/libftprintf.a"
 
 # -Wno-format : les tests passent volontairement des cas limites a printf
-cc -Wall -Wextra -Wno-format -Wno-format-security -g -I "$SRC" test_printf.c \
-	"$SRC/libftprintf.a" -o "$TMP/test" || exit 1
+if ! cc -Wall -Wextra -Wno-format -Wno-format-security -g -I "$SRC" test_printf.c \
+	"$SRC/libftprintf.a" -o "$TMP/test" 2>"$TMP/cc.log"; then
+	title "Compilation du testeur"
+	ko "le testeur ne compile pas avec ton ft_printf :"
+	show_file "$TMP/cc.log" 30
+	log_end; exit 1
+fi
 
 "$TMP/test" || STATUS=1
 
-if [ "$1" != "--no-valgrind" ] && command -v valgrind >/dev/null 2>&1; then
-	echo -e "\n${BOLD}=== Fuites et erreurs memoire (valgrind) ===${RESET}"
-	if valgrind -q --leak-check=full --errors-for-leak-kinds=definite \
-		--error-exitcode=42 "$TMP/test" >"$TMP/vg.log" 2>&1; then
-		echo -e "  ${GREEN}[OK]${RESET}    aucune fuite ni erreur memoire"
-	else
-		echo -e "  ${RED}[KO]${RESET}    valgrind a detecte des problemes :"
-		sed 's/\x1b\[[0-9;]*m//g' "$TMP/vg.log" \
-			| grep -E "\[(LEAK|CRASH|KO)\]|definitely lost|Invalid|uninitialised|at 0x|by 0x" \
-			| head -40 | sed 's/^/      /'
-		STATUS=1
-	fi
-else
-	echo -e "\n  ${YELLOW}[--]${RESET}    valgrind non utilise (absent ou --no-valgrind)"
-fi
+title "Fuites et erreurs memoire"
+run_valgrind "$TMP/test" ""
+
+log_end
 exit $STATUS
