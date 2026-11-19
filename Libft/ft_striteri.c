@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/09 09:42:48 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/09 10:30:57 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/19 15:06:22 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ void	ft_striteri(char *s, void (*f)(unsigned int, char*))
 	int	i;
 
 	i = -1;
+	if (!f || !s)
+		return ;
 	while (s[++i] != '\0')
 		f(i, &s[i]);
 }
