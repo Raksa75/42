@@ -17,22 +17,31 @@ Run once, from the root of the repository:
 ./Testers/install.sh
 ```
 
-It installs a `correcteur` command (a link in `~/.local/bin`), so the testers can be run
-from any folder. Open a new terminal after the installation. If the repository is moved,
-run `install.sh` again.
+It installs a `raksa` command (a link in `~/.local/bin`), so the testers can be run from any
+folder. Open a new terminal after the installation. If the repository is moved, run
+`install.sh` again.
 
 ## Usage
 
+Type `raksa` to open the menu. It asks step by step:
+
+1. what to do: test one project, test the three projects of this repo, or show the help;
+2. if a project is found in the current folder, whether to test it;
+3. otherwise, which project (Libft, ft_printf or get_next_line) and which folder:
+   the current folder, the one of this repo, or any other path;
+4. whether to look for memory leaks with `valgrind`;
+5. after the test: run it again, go back to the menu, or quit.
+
+The tests can also be started directly, without the menu:
+
 ```bash
-correcteur                    # tests the project of the current folder
-                              # (detected with libft.h, ft_printf.h or get_next_line.h)
-correcteur -m                 # interactive menu
-correcteur libft [folder]     # tests a Libft (the one of this repo by default)
-correcteur printf [folder]    # tests a ft_printf
-correcteur gnl [folder]       # tests a get_next_line
-correcteur all                # tests the three projects of this repo
-correcteur --no-valgrind      # faster, without the leak check
-correcteur -h                 # help
+raksa ici                # tests the project of the current folder
+raksa libft [folder]     # tests a Libft (the one of this repo by default)
+raksa printf [folder]    # tests a ft_printf
+raksa gnl [folder]       # tests a get_next_line
+raksa all                # tests the three projects of this repo
+raksa --no-valgrind      # faster, without the leak check
+raksa -h                 # help
 ```
 
 The project folder can be anywhere, for example a copy of the Libft inside another
@@ -59,8 +68,9 @@ Without the installation, the scripts can also be run directly:
 
 ```
 Testers/
-├── correcteur.sh       # the "correcteur" command: menu, project detection
-├── install.sh          # installs the "correcteur" command
+├── raksa.sh            # the "raksa" command: menu, project detection
+├── install.sh          # installs the "raksa" command
+├── assets/raksa.ans    # the picture shown in the menu (coloured terminal art)
 ├── run_all.sh          # runs the three testers
 ├── common/tester.h     # shared code: runs each test in a child process, prints results
 ├── libft/              # run.sh + test_libft.c
