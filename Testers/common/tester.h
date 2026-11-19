@@ -1,15 +1,3 @@
-/*
-** tester.h - socle commun des testeurs
-**
-** Chaque test est lance dans un processus enfant (fork) :
-**  - un crash (segfault...) n'arrete pas les autres tests ;
-**  - une boucle infinie est coupee au bout de TEST_TIMEOUT secondes ;
-**  - les details des erreurs sont affiches sous le nom du test.
-**
-** Si la variable d'environnement LOG_FILE est definie, chaque
-** verification (reussie ou non) y est ecrite avec ses valeurs.
-*/
-
 #ifndef TESTER_H
 # define TESTER_H
 
@@ -20,12 +8,17 @@
 # include <unistd.h>
 # include <signal.h>
 # include <sys/wait.h>
+# include <sys/mman.h>
 
 # define GREEN "\033[32m"
 # define RED "\033[31m"
 # define YELLOW "\033[33m"
+# define CYAN "\033[36m"
 # define BOLD "\033[1m"
+# define DIM "\033[2m"
 # define RESET "\033[0m"
+# define ICON_OK GREEN "✔" RESET
+# define ICON_KO RED "✘" RESET
 
 # ifndef TEST_TIMEOUT
 #  define TEST_TIMEOUT 30
@@ -35,9 +28,10 @@ static int	g_ok = 0;
 static int	g_ko = 0;
 static int	g_fail = 0;
 static int	g_nb_msg = 0;
-static int	g_nb_checks = 0;
+static long	g_checks_ok = 0;
+static long	g_checks = 0;
 
-/* ------------------------------ le log ------------------------------ */
+static long	*g_shared = NULL;
 
 __attribute__((unused))
 static void	log_printf(const char *fmt, ...)
@@ -62,28 +56,39 @@ static void	log_printf(const char *fmt, ...)
 	fflush(f);
 }
 
-/* ---------------------------- verifications ---------------------------- */
+__attribute__((unused))
+static int	compact(void)
+{
+	const char	*c;
+
+	c = getenv("TESTER_COMPACT");
+	return (c && *c == '1');
+}
 
 __attribute__((unused))
 static void	check_result(int ok, const char *msg)
 {
-	g_nb_checks++;
-	log_printf("      [%s] %s\n", ok ? "OK" : "KO", msg);
+	if (g_shared)
+	{
+		g_shared[1]++;
+		if (ok)
+			g_shared[0]++;
+	}
 	if (ok)
+	{
+		log_printf("      " ICON_OK " %s\n", msg);
 		return ;
+	}
+	log_printf("      " ICON_KO " " RED "%s" RESET "\n", msg);
 	g_fail = 1;
-	if (g_nb_msg++ < 10)
-		fprintf(stderr, "      - %s\n", msg);
-	else if (g_nb_msg == 11)
-		fprintf(stderr, "      - ... (autres erreurs dans le log)\n");
+	if (g_nb_msg++ < (compact() ? 3 : 10))
+		fprintf(stderr, "%s" RED "↳" RESET " %s\n",
+			compact() ? "            " : "        ", msg);
+	else if (g_nb_msg == (compact() ? 4 : 11))
+		fprintf(stderr, "%s" DIM "↳ ... (les autres erreurs sont dans le log)"
+			RESET "\n", compact() ? "            " : "        ");
 }
 
-/*
-** CHECK(condition, "description", ...) : la description est ecrite dans
-** le log dans tous les cas, et affichee a l'ecran si la condition est
-** fausse. Elle doit dire ce qui est teste, et les valeurs obtenue /
-** attendue.
-*/
 # define CHECK(cond, ...) \
 	do { \
 		char	m_[4096]; \
@@ -93,14 +98,86 @@ static void	check_result(int ok, const char *msg)
 		check_result(ok_, m_); \
 	} while (0)
 
-/* ------------------------------ affichage ------------------------------ */
+__attribute__((unused))
+static void	print_bar(FILE *f, long ok, long total, int width)
+{
+	int	full;
+	int	i;
+
+	full = (total > 0) ? (int)(ok * width / total) : width;
+	if (ok < total && full == width)
+		full--;
+	fprintf(f, GREEN);
+	i = 0;
+	while (i < width)
+	{
+		if (i == full)
+			fprintf(f, RED);
+		fprintf(f, "%s", i < full ? "█" : "░");
+		i++;
+	}
+	fprintf(f, RESET);
+}
 
 __attribute__((unused))
 static void	print_title(const char *title)
 {
-	printf("\n" BOLD "=== %s ===" RESET "\n", title);
+	log_printf("\n" CYAN BOLD "━━ %s ━━" RESET "\n", title);
+	if (compact())
+		return ;
+	printf("\n " CYAN BOLD "━━ %s " RESET DIM, title);
+	printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+		+ 3 * (strlen(title) < 50 ? strlen(title) : 50));
+	printf(RESET "\n");
 	fflush(stdout);
-	log_printf("\n=== %s ===\n", title);
+}
+
+__attribute__((unused))
+static void	print_test_line(const char *name, const char *icon,
+	const char *tag, long *count)
+{
+	if (compact())
+		printf("       %s %-46s " DIM "%4ld/%-4ld" RESET, icon, name, count[0],
+			count[1]);
+	else
+		printf("   %s %-50s " DIM "%4ld/%-4ld" RESET, icon, name, count[0],
+			count[1]);
+	if (tag)
+		printf("  " RED BOLD "%s" RESET, tag);
+	printf("\n");
+}
+
+__attribute__((unused))
+static int	report(const char *name, int status, long *count)
+{
+	char	tag[128];
+	int		ok;
+
+	ok = 0;
+	tag[0] = '\0';
+	if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+		ok = 1;
+	else if (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM)
+		snprintf(tag, sizeof(tag), "TIMEOUT (boucle infinie ?)");
+	else if (WIFSIGNALED(status))
+		snprintf(tag, sizeof(tag), "CRASH (%s)", strsignal(WTERMSIG(status)));
+	else if (WIFEXITED(status) && WEXITSTATUS(status) == 42)
+		snprintf(tag, sizeof(tag), "LEAK (fuite / erreur memoire)");
+	if (ok && !compact())
+		print_test_line(name, ICON_OK, NULL, count);
+	else if (!ok)
+		print_test_line(name, ICON_KO, tag[0] ? tag : NULL, count);
+	if (ok)
+		log_printf("    " GREEN BOLD "→ OK" RESET DIM " (%ld/%ld verifications)"
+			RESET "\n", count[0], count[1]);
+	else if (tag[0])
+		log_printf("    " RED BOLD "→ %s" RESET " : le programme s'est arrete juste"
+			" apres la derniere verification ci-dessus (%ld/%ld OK avant)\n",
+			tag, count[0], count[1]);
+	else
+		log_printf("    " RED BOLD "→ KO" RESET " (%ld/%ld verifications OK,"
+			" voir les lignes ✘ ci-dessus)\n", count[0], count[1]);
+	return (ok);
 }
 
 __attribute__((unused))
@@ -114,9 +191,14 @@ static void	run_test(const char *name, void (*fn)(void))
 
 	fflush(stdout);
 	fflush(stderr);
-	log_printf("\n  # %s\n", name);
-	if (pipe(pipefd) == -1)
+	log_printf("\n  " BOLD "▸ %s" RESET "\n", name);
+	if (!g_shared)
+		g_shared = mmap(NULL, 2 * sizeof(long), PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (g_shared == MAP_FAILED || pipe(pipefd) == -1)
 		return ;
+	g_shared[0] = 0;
+	g_shared[1] = 0;
 	pid = fork();
 	if (pid == 0)
 	{
@@ -125,49 +207,19 @@ static void	run_test(const char *name, void (*fn)(void))
 		close(pipefd[1]);
 		g_fail = 0;
 		g_nb_msg = 0;
-		g_nb_checks = 0;
 		alarm(TEST_TIMEOUT);
 		fn();
-		log_printf("      (%d verifications)\n", g_nb_checks);
 		fflush(stderr);
 		exit(g_fail ? 1 : 0);
 	}
 	close(pipefd[1]);
 	waitpid(pid, &status, 0);
-	if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
-	{
-		printf("  " GREEN "[OK]" RESET "      %s\n", name);
-		log_printf("    => OK\n");
+	g_checks_ok += g_shared[0];
+	g_checks += g_shared[1];
+	if (report(name, status, g_shared))
 		g_ok++;
-	}
-	else if (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM)
-	{
-		printf("  " RED "[TIMEOUT]" RESET " %s (boucle infinie ?)\n", name);
-		log_printf("    => TIMEOUT : le test a depasse %d secondes (boucle infinie ?)."
-			" Il bloquait apres la derniere verification ci-dessus.\n",
-			TEST_TIMEOUT);
-		g_ko++;
-	}
-	else if (WIFSIGNALED(status))
-	{
-		printf("  " RED "[CRASH]" RESET "   %s (%s)\n", name,
-			strsignal(WTERMSIG(status)));
-		log_printf("    => CRASH (%s) : le programme a plante juste apres la"
-			" derniere verification ci-dessus.\n", strsignal(WTERMSIG(status)));
-		g_ko++;
-	}
-	else if (WIFEXITED(status) && WEXITSTATUS(status) == 42)
-	{
-		printf("  " RED "[LEAK]" RESET "    %s (erreur memoire / fuite)\n", name);
-		log_printf("    => LEAK : valgrind a trouve une fuite ou une erreur memoire\n");
-		g_ko++;
-	}
 	else
-	{
-		printf("  " RED "[KO]" RESET "      %s\n", name);
-		log_printf("    => KO (voir les lignes [KO] ci-dessus)\n");
 		g_ko++;
-	}
 	fflush(stdout);
 	n = read(pipefd[0], buf, sizeof(buf) - 1);
 	while (n > 0)
@@ -183,20 +235,28 @@ static void	run_test(const char *name, void (*fn)(void))
 __attribute__((unused))
 static int	print_summary(void)
 {
-	printf("\n" BOLD "Resultat : " RESET);
-	if (g_ko == 0)
-		printf(GREEN "%d/%d tests OK" RESET "\n", g_ok, g_ok + g_ko);
-	else
-		printf(RED "%d/%d tests OK, %d KO" RESET "\n", g_ok, g_ok + g_ko,
-			g_ko);
-	log_printf("\nResultat : %d/%d groupes de tests OK\n", g_ok, g_ok + g_ko);
+	const char	*path;
+	FILE		*f;
+
+	path = getenv("RESULT_FILE");
+	f = (path && *path) ? fopen(path, "w") : NULL;
+	if (f)
+	{
+		fprintf(f, "%d %d %ld %ld\n", g_ok, g_ok + g_ko, g_checks_ok, g_checks);
+		fclose(f);
+	}
+	log_printf("\n  %s " BOLD "%d/%d tests OK" RESET " (%ld/%ld verifications)\n",
+		g_ko ? ICON_KO : ICON_OK, g_ok, g_ok + g_ko, g_checks_ok, g_checks);
+	if (compact())
+		return (g_ko != 0);
+	printf("\n   %s ", g_ko ? ICON_KO : ICON_OK);
+	print_bar(stdout, g_ok, g_ok + g_ko, 30);
+	printf("  %s%d/%d tests OK" RESET DIM "  (%ld/%ld verifications)" RESET "\n",
+		g_ko ? RED BOLD : GREEN BOLD, g_ok, g_ok + g_ko, g_checks_ok, g_checks);
+	fflush(stdout);
 	return (g_ko != 0);
 }
 
-/*
-** Affiche une chaine en rendant visibles les caracteres speciaux
-** (\n, \0, ...). Le resultat est ecrit dans out (taille 1024).
-*/
 __attribute__((unused))
 static char	*show(const char *s, size_t len, char *out)
 {

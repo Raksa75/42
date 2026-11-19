@@ -1,22 +1,21 @@
 #!/bin/bash
-# Lance les testeurs de tous les projets.
-# Usage : ./run_all.sh              (avec valgrind si disponible)
-#         ./run_all.sh --no-valgrind
 
 cd "$(dirname "$0")" || exit 1
-GREEN="\033[32m"; RED="\033[31m"; BOLD="\033[1m"; RESET="\033[0m"
-RESULTS=""
-STATUS=0
+source common/common.sh
+LINES_RECAP=()
+ALL=0
 
 for t in libft printf gnl; do
-	echo -e "\n${BOLD}################ $t ################${RESET}"
 	if ./$t/run.sh "$@"; then
-		RESULTS="$RESULTS\n  ${GREEN}[OK]${RESET}  $t"
+		LINES_RECAP+=("${GREEN}✔${RESET}  $t")
 	else
-		RESULTS="$RESULTS\n  ${RED}[KO]${RESET}  $t"
-		STATUS=1
+		LINES_RECAP+=("${RED}✘  $t${RESET}")
+		ALL=1
 	fi
 done
 
-echo -e "\n${BOLD}================ Recapitulatif ================${RESET}$RESULTS"
-exit $STATUS
+echo
+if [ $ALL -eq 0 ]; then box "$GREEN" "${BOLD}Recapitulatif${RESET}" "" "${LINES_RECAP[@]}"
+else box "$RED" "${BOLD}Recapitulatif${RESET}" "" "${LINES_RECAP[@]}"; fi
+echo -e "  ${DIM}Les logs sont dans $LOG_DIR/${RESET}"
+exit $ALL

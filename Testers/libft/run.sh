@@ -1,7 +1,4 @@
 #!/bin/bash
-# Testeur Libft
-# Usage : ./run.sh [--no-valgrind]
-# Le dossier teste est ../../Libft, ou celui donne par PROJECT_DIR.
 
 cd "$(dirname "$0")" || exit 1
 source ../common/common.sh
@@ -9,7 +6,6 @@ SRC="${PROJECT_DIR:-../../Libft}"
 TMP="$(mktemp -d)"
 [ "$1" = "--no-valgrind" ] && NO_VALGRIND=1
 
-# si libft.a existait deja avant le test, on le laisse ; sinon on nettoie
 HAD_LIB=0
 [ -f "$SRC/libft.a" ] && HAD_LIB=1
 cleanup() {
@@ -19,9 +15,9 @@ cleanup() {
 trap cleanup EXIT
 
 log_init "libft" "$SRC" "$1"
-say "${BOLD}${CYAN}Libft${RESET} ${DIM}($(cd "$SRC" && pwd))${RESET}"
+show_project "LIBFT" "$(cd "$SRC" && pwd)"
 
-check_makefile "$SRC" "libft.a" || { log_end; exit 1; }
+check_makefile "$SRC" "libft.a" || { log_end "LIBFT"; exit 1; }
 check_norm "$SRC"/*.c "$SRC"/*.h
 
 title "Fonctions externes"
@@ -32,13 +28,13 @@ if ! cc -Wall -Wextra -g -I "$SRC" test_libft.c "$SRC/libft.a" -o "$TMP/test" \
 	title "Compilation du testeur"
 	ko "le testeur ne compile pas avec ta libft (prototype different ou fonction manquante ?) :"
 	show_file "$TMP/cc.log" 30
-	log_end; exit 1
+	log_end "LIBFT"; exit 1
 fi
 
-"$TMP/test" || STATUS=1
+run_tests "$TMP/test" "Tests"
 
 title "Fuites et erreurs memoire"
 run_valgrind "$TMP/test" ""
 
-log_end
+log_end "LIBFT"
 exit $STATUS

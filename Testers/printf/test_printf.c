@@ -1,16 +1,9 @@
-/*
-** test_printf.c - testeur de ft_printf
-** Chaque appel est compare au vrai printf : meme affichage, meme retour.
-** Lance-le avec ./run.sh. Chaque comparaison est ecrite dans le log.
-*/
-
 #include "../common/tester.h"
 #include "ft_printf.h"
 #include <limits.h>
 #include <stdint.h>
 #include <fcntl.h>
 
-/* redirige la sortie standard vers un fichier temporaire */
 static int	capture_start(int *saved)
 {
 	char	path[] = "/tmp/pf_testXXXXXX";
@@ -24,7 +17,6 @@ static int	capture_start(int *saved)
 	return (fd);
 }
 
-/* remet la sortie standard et recupere ce qui a ete ecrit */
 static size_t	capture_end(int fd, int saved, char *buf, size_t size)
 {
 	ssize_t	n;
@@ -41,12 +33,6 @@ static size_t	capture_end(int fd, int saved, char *buf, size_t size)
 	return ((size_t)n);
 }
 
-/*
-** PF(format, ...) : appelle printf puis ft_printf avec les memes
-** arguments, et compare l'affichage et la valeur de retour.
-** PFD(description, format, ...) : pareil, avec la description a ecrire
-** dans le log (utile dans les boucles, pour voir la vraie valeur).
-*/
 #define PF(...) PFD(#__VA_ARGS__, __VA_ARGS__)
 #define PFD(desc, ...) \
 	do { \

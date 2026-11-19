@@ -1,16 +1,8 @@
-/*
-** test_libft.c - testeur de la Libft
-** Lance-le avec ./run.sh (il compile la libft et ce fichier).
-** Chaque verification est ecrite dans le log (variable LOG_FILE).
-*/
-
 #include "../common/tester.h"
 #include "libft.h"
 #include <ctype.h>
 #include <limits.h>
 #include <stdint.h>
-
-/* ---------- references pour les fonctions absentes de la libc ---------- */
 
 static size_t	ref_strlcpy(char *dst, const char *src, size_t size)
 {
@@ -73,7 +65,6 @@ static int	sign(int n)
 	return ((n > 0) - (n < 0));
 }
 
-/* decrit un pointeur renvoye par rapport au debut de la chaine */
 static char	*where(const char *base, const char *p, char *out)
 {
 	if (!p)
@@ -82,7 +73,6 @@ static char	*where(const char *base, const char *p, char *out)
 	return (out);
 }
 
-/* lit tout ce qui a ete ecrit dans un pipe */
 static size_t	read_pipe(int fd, char *buf, size_t size)
 {
 	ssize_t	n;
@@ -99,12 +89,6 @@ static size_t	read_pipe(int fd, char *buf, size_t size)
 	return (total);
 }
 
-/* ============================== PARTIE 1 ============================== */
-
-/*
-** Compare une fonction ft_isxxx avec celle de la libc pour c de -1 a 255.
-** Une seule ligne dans le log, avec les valeurs fausses s'il y en a.
-*/
 static void	check_is(const char *name, int (*ft)(int), int (*ref)(int))
 {
 	char	bad[1024];
@@ -539,8 +523,6 @@ static void	t_strdup(void)
 	free(d);
 }
 
-/* ============================== PARTIE 2 ============================== */
-
 static void	check_str(char *got, const char *expected, const char *call)
 {
 	char	b1[1024];
@@ -741,7 +723,6 @@ static void	t_strmapi_striteri(void)
 	CHECK(e[0] == '\0', "ft_striteri(\"\", f) ne doit rien faire");
 }
 
-/* appelle une fonction put*_fd sur un pipe et compare ce qui a ete ecrit */
 #define PUT_TEST(call, expected) \
 	do { \
 		int		p_[2]; \
@@ -782,8 +763,6 @@ static void	t_put_fd(void)
 	PUT_TEST(ft_putnbr_fd(INT_MAX, p_[1]), "2147483647");
 	PUT_TEST(ft_putnbr_fd(INT_MIN, p_[1]), "-2147483648");
 }
-
-/* ============================== PARTIE 3 ============================== */
 
 static int	g_del_count = 0;
 

@@ -1,6 +1,4 @@
 #!/bin/bash
-# Installe la commande "raksa" pour pouvoir l'appeler depuis n'importe ou.
-# A lancer une seule fois : ./Testers/install.sh
 
 TESTERS="$(dirname "$(readlink -f "$0")")"
 BIN="$HOME/.local/bin"
@@ -9,11 +7,9 @@ GREEN="\033[32m"; YELLOW="\033[33m"; BOLD="\033[1m"; RESET="\033[0m"
 chmod +x "$TESTERS"/*.sh "$TESTERS"/*/run.sh
 mkdir -p "$BIN"
 ln -sf "$TESTERS/raksa.sh" "$BIN/raksa"
-# supprime l'ancienne commande "correcteur" si elle existe
 [ -L "$BIN/correcteur" ] && rm -f "$BIN/correcteur"
 echo -e "${GREEN}Commande installee :${RESET} $BIN/raksa -> $TESTERS/raksa.sh"
 
-# ajoute ~/.local/bin au PATH si ce n'est pas deja le cas
 case ":$PATH:" in
 	*":$BIN:"*) ;;
 	*)

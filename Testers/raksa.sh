@@ -1,23 +1,14 @@
 #!/bin/bash
-# raksa - menu des testeurs 42 (Libft, ft_printf, get_next_line)
-#
-#   raksa                     ouvre le menu
-#   raksa libft [dossier]     teste directement une Libft (printf, gnl : pareil)
-#   raksa all                 teste les trois projets du depot
-#   raksa ici                 teste le projet du dossier courant
-#   --no-valgrind             plus rapide, sans la recherche de fuites
-#   -h                        aide
 
 TESTERS="$(dirname "$(readlink -f "$0")")"
 REPO="$(dirname "$TESTERS")"
 ART="$TESTERS/assets/raksa.ans"
+source "$TESTERS/common/common.sh"
 GREEN="\033[32m"; RED="\033[31m"; YELLOW="\033[33m"; CYAN="\033[36m"
 MAGENTA="\033[35m"; BOLD="\033[1m"; DIM="\033[2m"; RESET="\033[0m"
 VG_OPT=""
 LAST_PROJECT=""
 LAST_DIR=""
-
-# ============================ utilitaires ============================
 
 project_name() {
 	case "$1" in
@@ -43,7 +34,6 @@ default_dir() {
 	esac
 }
 
-# reconnait le projet d'un dossier grace a son header
 detect() {
 	if [ -f "$1/libft.h" ]; then echo "libft"
 	elif [ -f "$1/ft_printf.h" ]; then echo "printf"
@@ -51,15 +41,9 @@ detect() {
 	fi
 }
 
-# remet le curseur visible en quittant (meme avec ctrl+c)
 trap 'tput cnorm 2>/dev/null; echo; exit 130' INT
 trap 'tput cnorm 2>/dev/null' EXIT
 
-# Menu a fleches.
-#   select_menu <choix par defaut> "Question" "option 1" "option 2" ...
-# Haut/Bas (ou k/j) pour bouger, Entree pour valider, 1-9 pour aller
-# directement a une option. Le numero choisi (a partir de 0) est mis
-# dans MENU_RESULT.
 select_menu() {
 	local selected="$1" title="$2"
 	shift 2
@@ -93,7 +77,6 @@ select_menu() {
 	MENU_RESULT=$selected
 }
 
-# question oui/non ; $2 = reponse par defaut (o ou n)
 ask_yes_no() {
 	local def=0
 	[ "$2" = "n" ] && def=1
@@ -104,8 +87,6 @@ ask_yes_no() {
 pause() {
 	read -r -p "$(echo -e "\n  ${DIM}Appuie sur Entree pour continuer...${RESET}")" _ || exit 0
 }
-
-# ============================== affichage ==============================
 
 banner() {
 	local title=(
@@ -152,8 +133,6 @@ usage() {
 	echo -e "\n  Options : ${CYAN}--no-valgrind${RESET} (plus rapide, sans les fuites), ${CYAN}-h${RESET} (aide)"
 }
 
-# ============================== lancement ==============================
-
 run_one() {
 	local project="$1"
 	local dir
@@ -164,25 +143,24 @@ run_one() {
 	fi
 	LAST_PROJECT="$project"
 	LAST_DIR="$dir"
-	echo -e "\n${BOLD}${MAGENTA}>>> $(project_name "$project")${RESET} ${DIM}($dir)${RESET}"
 	PROJECT_DIR="$dir" "$TESTERS/$project/run.sh" $VG_OPT
 }
 
 run_all() {
-	local results="" status=0 p
+	local lines=() status=0 p
 	for p in libft printf gnl; do
 		if run_one "$p" "$(default_dir "$p")"; then
-			results="$results\n  ${GREEN}[OK]${RESET}  $(project_name "$p")"
+			lines+=("${GREEN}✔${RESET}  $(project_name "$p")")
 		else
-			results="$results\n  ${RED}[KO]${RESET}  $(project_name "$p")"
+			lines+=("${RED}✘  $(project_name "$p")${RESET}")
 			status=1
 		fi
 	done
-	echo -e "\n${BOLD}=========== Recapitulatif ===========${RESET}$results"
+	echo
+	if [ $status -eq 0 ]; then LOG_FILE="" box "$GREEN" "${BOLD}Recapitulatif${RESET}" "" "${lines[@]}"
+	else LOG_FILE="" box "$RED" "${BOLD}Recapitulatif${RESET}" "" "${lines[@]}"; fi
 	return $status
 }
-
-# ============================ les questions ============================
 
 ask_valgrind() {
 	if ! command -v valgrind >/dev/null 2>&1; then
@@ -195,7 +173,6 @@ ask_valgrind() {
 	fi
 }
 
-# demande quel projet tester ; ecrit le resultat dans CHOSEN_PROJECT
 ask_project() {
 	CHOSEN_PROJECT=""
 	select_menu 0 "Quel projet veux-tu tester ?" \
@@ -208,7 +185,6 @@ ask_project() {
 	esac
 }
 
-# demande quel dossier tester ; ecrit le resultat dans CHOSEN_DIR
 ask_dir() {
 	local project="$1" path repo_dir
 	repo_dir="$(default_dir "$project")"
@@ -277,7 +253,6 @@ after_test() {
 	done
 }
 
-# affiche le dernier log (less pour defiler, q pour quitter)
 show_log() {
 	local f="$TESTERS/logs/dernier.log"
 	if [ ! -e "$f" ]; then
@@ -314,8 +289,6 @@ main_menu() {
 		esac
 	done
 }
-
-# ======================= lecture des arguments =======================
 
 ARGS=()
 for a in "$@"; do

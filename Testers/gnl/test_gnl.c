@@ -1,9 +1,3 @@
-/*
-** test_gnl.c - testeur de get_next_line
-** Compile une fois par BUFFER_SIZE par ./run.sh
-** Chaque verification est ecrite dans le log (variable LOG_FILE).
-*/
-
 #include "../common/tester.h"
 #include "get_next_line.h"
 #include <fcntl.h>
@@ -14,7 +8,6 @@ static const char	*g_content;
 static size_t		g_len;
 static char			g_cmd[256];
 
-/* ecrit le contenu de test dans un fichier et renvoie son chemin */
 static char	*make_file(const char *content, size_t len)
 {
 	static char	path[256];
@@ -47,12 +40,6 @@ static int	count_lines(const char *content, size_t len)
 	return (n);
 }
 
-/*
-** Lit tout le fd avec get_next_line et compare chaque ligne a ce qui est
-** attendu (le contenu decoupe apres chaque '\n'). Pour les petits
-** fichiers, chaque ligne est ecrite dans le log ; pour les gros, une
-** seule ligne de resume (avec la premiere erreur s'il y en a une).
-*/
 static void	check_fd(int fd, const char *content, size_t len)
 {
 	size_t	start;
@@ -130,7 +117,6 @@ static void	t_file(void)
 	close(fd);
 }
 
-/* la longueur est calculee par sizeof : pas d'erreur de comptage */
 #define FILE_TEST(name, lit) file_test(name, lit, sizeof(lit) - 1)
 
 static void	file_test(const char *name, const char *content, size_t len)
@@ -140,7 +126,6 @@ static void	file_test(const char *name, const char *content, size_t len)
 	run_test(name, t_file);
 }
 
-/* stdin : le contenu arrive d'un coup dans un pipe */
 static void	t_stdin(void)
 {
 	const char	*content = "ligne 1 depuis stdin\nligne 2\n\nderniere";
@@ -165,11 +150,6 @@ static void	t_stdin(void)
 	waitpid(pid, NULL, 0);
 }
 
-/*
-** stdin "lent" : le contenu arrive par petits morceaux, avec des pauses,
-** comme quand on tape au clavier. read renvoie alors moins d'octets que
-** BUFFER_SIZE, et parfois au milieu d'une ligne.
-*/
 static void	t_stdin_slow(void)
 {
 	const char		*content = "on tape\nune ligne\npuis une autre qui est plus longue\nfin";
@@ -237,10 +217,6 @@ static void	t_two_files(void)
 	close(fd);
 }
 
-/*
-** Lignes de longueur BUFFER_SIZE - 1, BUFFER_SIZE et BUFFER_SIZE + 1 :
-** c'est la ou les erreurs de decoupage apparaissent.
-*/
 static void	t_around_buffer_size(void)
 {
 	char	*content;
@@ -284,7 +260,6 @@ static void	t_around_buffer_size(void)
 	free(content);
 }
 
-/* fichier qui fait exactement BUFFER_SIZE, puis 2 * BUFFER_SIZE octets */
 static void	t_exact_buffer_size(void)
 {
 	char	*content;
@@ -379,12 +354,12 @@ int	main(void)
 		file_test("ligne longue puis ligne courte", long_then_short, 5005);
 		file_test("300 lignes de longueurs variees", many, n);
 		file_test("2000 lignes (gros fichier)", big_file, nb);
-		run_test("lignes de BUFFER_SIZE - 1, BUFFER_SIZE et BUFFER_SIZE + 1",
+		run_test("lignes de BUFFER_SIZE - 1, + 0 et + 1 car.",
 			t_around_buffer_size);
-		run_test("fichier de exactement BUFFER_SIZE et 2 * BUFFER_SIZE octets",
+		run_test("fichier de BUFFER_SIZE et 2 * BUFFER_SIZE oct.",
 			t_exact_buffer_size);
 		run_test("lecture sur l'entree standard (fd 0)", t_stdin);
-		run_test("entree standard lente (texte qui arrive par morceaux)", t_stdin_slow);
+		run_test("stdin lent (le texte arrive par morceaux)", t_stdin_slow);
 		run_test("fd invalides (-1, 4242, un dossier)", t_invalid_fd);
 		run_test("deux fichiers l'un apres l'autre", t_two_files);
 	}

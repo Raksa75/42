@@ -60,22 +60,31 @@ Without the installation, the scripts can also be run directly:
 
 Each run writes a log file in `Testers/logs/`, named after the project and the date
 (for example `libft_2026-11-19_14-30-00.log`). `Testers/logs/dernier.log` always points to
-the last one. The screen only shows one line per group of tests; the log shows **every
-check**, with the values used:
+the last one.
+
+On screen, each group of tests has one line (✔ or ✘, with the number of checks that
+passed), followed by the errors when it fails, and a final box says whether everything is OK
+or lists what has to be fixed. For get_next_line, there is one line per `BUFFER_SIZE` with a
+progress bar.
+
+The log shows **every check**, with the values used, in colour:
 
 ```
-  # ft_atoi
-      [OK] ft_atoi("-42") = -42, attendu -42
-      [OK] ft_atoi("+42") = 42, attendu 42
-      [KO] ft_atoi("+-42") = 42, attendu 0
-    => KO (voir les lignes [KO] ci-dessus)
+  ▸ ft_atoi
+      ✔ ft_atoi("-42") = -42, attendu -42
+      ✔ ft_atoi("+42") = 42, attendu 42
+      ✘ ft_atoi("+-42") = 42, attendu 0
+    → KO (28/29 verifications OK, voir les lignes ✘ ci-dessus)
 ```
 
 For a failed check, it gives the value tested, the expected result and the obtained result.
 For a crash, a timeout or a leak, it says after which check it happened. The log also
-contains the output of `make`, `norminette`, the compiler and `valgrind`.
+contains the output of `make`, `norminette`, the compiler and the full output of `valgrind`
+(on screen, only the tests concerned and the first error, in your own functions).
 
-To read it: `raksa log`, the "Voir le log" line of the menu, or `less Testers/logs/dernier.log`.
+The log keeps the colours, so read it with `raksa log`, the "Voir le log" line of the menu,
+or `less -R Testers/logs/dernier.log` (`q` to quit, `/` to search, for example `/✘`).
+Opened in vim or another editor, the colour codes show as `^[[32m`.
 The `logs/` folder is in `.gitignore`, so the logs are not pushed.
 
 ## How it works
@@ -104,3 +113,5 @@ Testers/
 ├── printf/             # run.sh + test_printf.c
 └── gnl/                # run.sh + test_gnl.c
 ```
+
+These testers were written with the help of AI (Claude).
