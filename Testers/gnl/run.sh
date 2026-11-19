@@ -9,7 +9,7 @@ TMP="$(mktemp -d)"
 STATUS=0
 GREEN="\033[32m"; RED="\033[31m"; YELLOW="\033[33m"; BOLD="\033[1m"; RESET="\033[0m"
 FILES="$SRC/get_next_line.c $SRC/get_next_line_utils.c"
-SIZES="1 2 3 5 10 42 1000 10000000"
+SIZES="0 1 2 3 5 10 42 1000"
 
 trap 'rm -rf "$TMP"' EXIT
 

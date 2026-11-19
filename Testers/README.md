@@ -7,7 +7,7 @@ Norm, runs the tests, then checks for memory leaks with `valgrind`.
 |---|---|---|
 | `libft/` | [Libft](../Libft) | Makefile (rules, no relink), Norm, the 43 functions compared with the libc, leaks |
 | `printf/` | [ft_printf](../Printf) | Makefile, Norm, every conversion (`cspdiuxX%`) compared with the real `printf` (output **and** return value), leaks |
-| `gnl/` | [get_next_line](../GetNextLine) | Norm, allowed functions only, compilation with and without `BUFFER_SIZE`, many files with `BUFFER_SIZE` from 1 to 10000000, standard input, invalid fds, leaks |
+| `gnl/` | [get_next_line](../GetNextLine) | Norm, allowed functions only, compilation with and without `BUFFER_SIZE`, many files with `BUFFER_SIZE` from 0 to 1000, standard input, invalid fds, leaks |
 
 ## Usage
 

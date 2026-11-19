@@ -10,6 +10,7 @@
 static char			g_dir[] = "/tmp/gnl_testXXXXXX";
 static const char	*g_content;
 static size_t		g_len;
+static char			g_cmd[256];
 
 /* ecrit le contenu de test dans un fichier et renvoie son chemin */
 static char	*make_file(const char *content, size_t len)
@@ -139,6 +140,48 @@ static void	t_two_files(void)
 	close(fd);
 }
 
+/*
+** BUFFER_SIZE = 0 : read ne peut rien lire, get_next_line doit
+** renvoyer NULL a chaque appel, sans planter ni boucler a l'infini.
+*/
+static void	t_buffer_zero(void)
+{
+	const char	*content = "une ligne\nune autre\n";
+	char		*line;
+	char		b1[1024];
+	int			fd;
+	int			i;
+
+	fd = open(make_file(content, strlen(content)), O_RDONLY);
+	CHECK(fd != -1, "impossible de creer le fichier de test");
+	if (fd == -1)
+		return ;
+	i = 0;
+	while (i < 3)
+	{
+		line = get_next_line(fd);
+		CHECK(line == NULL, "appel %d : get_next_line doit renvoyer NULL, obtenu %s",
+			i + 1, show(line, line ? strlen(line) : 0, b1));
+		free(line);
+		i++;
+	}
+	close(fd);
+}
+
+static int	test_buffer_zero(void)
+{
+	int	status;
+
+	printf("\n" BOLD "=== get_next_line - BUFFER_SIZE = %d ===" RESET "\n",
+		(int)BUFFER_SIZE);
+	run_test("BUFFER_SIZE = 0 : renvoie toujours NULL", t_buffer_zero);
+	run_test("fd invalides (-1 et 4242)", t_invalid_fd);
+	status = print_summary();
+	sprintf(g_cmd, "rm -rf %s", g_dir);
+	system(g_cmd);
+	return (status);
+}
+
 int	main(void)
 {
 	static char	long_line[10001];
@@ -151,6 +194,8 @@ int	main(void)
 
 	if (!mkdtemp(g_dir))
 		return (1);
+	if (BUFFER_SIZE <= 0)
+		return (test_buffer_zero());
 	memset(long_line, 'x', 10000);
 	memset(long_then_short, 'y', 5000);
 	strcpy(long_then_short + 5000, "\nfin\n");
