@@ -9,6 +9,12 @@ Norm, runs the tests, then checks for memory leaks with `valgrind`.
 | `printf/` | [ft_printf](../Printf) | Makefile, Norm, allowed functions only, every conversion (`cspdiuxX%`) compared with the real `printf`, output **and** return value (about 450 checks: all ASCII characters, `INT_MIN`/`INT_MAX`/`UINT_MAX`, `NULL` strings and pointers, mixed conversions), leaks |
 | `gnl/` | [get_next_line](../GetNextLine) | Norm, allowed functions only, compilation with and without `BUFFER_SIZE`, `BUFFER_SIZE` from 0 to 1000: empty file, with or without a final `\n`, empty lines, very long lines, lines of `BUFFER_SIZE - 1`, `BUFFER_SIZE` and `BUFFER_SIZE + 1` characters, a 2000-line file, standard input (all at once or slowly, in small pieces), invalid fds, calls after the end of the file, leaks |
 
+## Preview
+
+| A project with errors | A project that passes |
+|---|---|
+| ![Libft with errors](assets/screenshots/erreurs.png) | ![get_next_line, all OK](assets/screenshots/gnl.png) |
+
 ## Installation
 
 Run once, from the root of the repository:
@@ -24,7 +30,11 @@ folder. Open a new terminal after the installation. If the repository is moved, 
 ## Usage
 
 Type `raksa` to open the menu. Choose with the **arrow keys** (or `j`/`k`, or the number of
-the line) and confirm with **Enter**. It asks step by step:
+the line) and confirm with **Enter**.
+
+![The raksa menu](assets/screenshots/menu.png)
+
+It asks step by step:
 
 1. what to do: test one project, test the three projects of this repo, or show the help;
 2. if a project is found in the current folder, whether to test it;
@@ -69,13 +79,7 @@ progress bar.
 
 The log shows **every check**, with the values used, in colour:
 
-```
-  ▸ ft_atoi
-      ✔ ft_atoi("-42") = -42, attendu -42
-      ✔ ft_atoi("+42") = 42, attendu 42
-      ✘ ft_atoi("+-42") = 42, attendu 0
-    → KO (28/29 verifications OK, voir les lignes ✘ ci-dessus)
-```
+![A log file](assets/screenshots/log.png)
 
 For a failed check, it gives the value tested, the expected result and the obtained result.
 For a crash, a timeout or a leak, it says after which check it happened. The log also
@@ -105,6 +109,7 @@ Testers/
 ├── raksa.sh            # the "raksa" command: menu, project detection
 ├── install.sh          # installs the "raksa" command
 ├── assets/raksa.ans    # the picture shown in the menu (coloured terminal art)
+├── assets/screenshots/ # the pictures of this README
 ├── run_all.sh          # runs the three testers
 ├── common/tester.h     # shared C code: runs each test in a child process, writes the log
 ├── common/common.sh    # shared shell code: Makefile, Norm, allowed functions, valgrind, log

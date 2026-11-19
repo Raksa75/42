@@ -261,6 +261,7 @@ static void	t_strchr_strrchr(void)
 		'a' - 256, 0200, 0377, -1};
 	char		w1[64];
 	char		w2[64];
+	char		b1[1024];
 	int			i;
 	int			k;
 
@@ -271,11 +272,13 @@ static void	t_strchr_strrchr(void)
 		while (++k < 12)
 		{
 			CHECK(ft_strchr(strs[i], cs[k]) == strchr(strs[i], cs[k]),
-				"ft_strchr(\"%s\", %d) = %s, attendu %s", strs[i], cs[k],
+				"ft_strchr(%s, %d) = %s, attendu %s",
+				show(strs[i], strlen(strs[i]), b1), cs[k],
 				where(strs[i], ft_strchr(strs[i], cs[k]), w1),
 				where(strs[i], strchr(strs[i], cs[k]), w2));
 			CHECK(ft_strrchr(strs[i], cs[k]) == strrchr(strs[i], cs[k]),
-				"ft_strrchr(\"%s\", %d) = %s, attendu %s", strs[i], cs[k],
+				"ft_strrchr(%s, %d) = %s, attendu %s",
+				show(strs[i], strlen(strs[i]), b1), cs[k],
 				where(strs[i], ft_strrchr(strs[i], cs[k]), w1),
 				where(strs[i], strrchr(strs[i], cs[k]), w2));
 		}
@@ -289,14 +292,16 @@ static void	t_strncmp(void)
 	const char	*b[] = {"abc", "abd", "ab", "", "", "abc", "ab\0", "a",
 		"testing", "b", "abcxyz", "abcd", "\001", "ABC", "abc\0yy", "zz"};
 	size_t		n[] = {3, 3, 3, 1, 5, 2, 3, 1, 4, 0, 3, 100, 1, 3, 6, 2};
+	char		b1[1024];
+	char		b2[1024];
 	int			i;
 
 	i = 0;
 	while (i < 16)
 	{
 		CHECK(sign(ft_strncmp(a[i], b[i], n[i])) == sign(strncmp(a[i], b[i], n[i])),
-			"ft_strncmp(\"%s\", \"%s\", %zu) = %d, attendu un resultat du signe de %d",
-			a[i], b[i], n[i], ft_strncmp(a[i], b[i], n[i]),
+			"ft_strncmp(%s, %s, %zu) = %d, attendu un resultat du signe de %d",
+			show(a[i], strlen(a[i]), b1), show(b[i], strlen(b[i]), b2), n[i], ft_strncmp(a[i], b[i], n[i]),
 			strncmp(a[i], b[i], n[i]));
 		i++;
 	}
