@@ -35,14 +35,10 @@ static int	g_nb_msg = 0;
 static long	g_checks_ok = 0;
 static long	g_checks = 0;
 
-<<<<<<< HEAD
-static long	*g_shared = NULL;
-=======
 static int	g_crash = 0;
 static long	*g_shared = NULL;
 static char	g_skipped[8192] = "";
 static char	g_pending_title[256] = "";
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 
 __attribute__((unused))
 static void	log_printf(const char *fmt, ...)
@@ -136,14 +132,11 @@ static void	print_title(const char *title)
 	log_printf("\n" CYAN BOLD "━━ %s ━━" RESET "\n", title);
 	if (compact())
 		return ;
-<<<<<<< HEAD
-=======
 	if (getenv("TEST_FILTER") && *getenv("TEST_FILTER"))
 	{
 		snprintf(g_pending_title, sizeof(g_pending_title), "%s", title);
 		return ;
 	}
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	printf("\n " CYAN BOLD "━━ %s " RESET DIM, title);
 	printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 		+ 3 * (strlen(title) < 50 ? strlen(title) : 50));
@@ -196,17 +189,12 @@ static int	report(const char *name, int status, long *count)
 	else
 		log_printf("    " RED BOLD "→ KO" RESET " (%ld/%ld verifications OK,"
 			" voir les lignes ✘ ci-dessus)\n", count[0], count[1]);
-<<<<<<< HEAD
-=======
 	if (!ok && tag[0])
 		return (2);
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	return (ok);
 }
 
 __attribute__((unused))
-<<<<<<< HEAD
-=======
 static void	save_state(const char *name, int ok)
 {
 	const char	*path;
@@ -267,7 +255,6 @@ static int	filtered_out(const char *name)
 }
 
 __attribute__((unused))
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 static void	run_test(const char *name, void (*fn)(void))
 {
 	int		pipefd[2];
@@ -307,12 +294,6 @@ static void	run_test(const char *name, void (*fn)(void))
 	waitpid(pid, &status, 0);
 	g_checks_ok += g_shared[0];
 	g_checks += g_shared[1];
-<<<<<<< HEAD
-	if (report(name, status, g_shared))
-		g_ok++;
-	else
-		g_ko++;
-=======
 	res = report(name, status, g_shared);
 	save_state(name, res == 1);
 	if (res == 1)
@@ -321,7 +302,6 @@ static void	run_test(const char *name, void (*fn)(void))
 		g_ko++;
 	if (res == 2)
 		g_crash++;
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	fflush(stdout);
 	n = read(pipefd[0], buf, sizeof(buf) - 1);
 	while (n > 0)
@@ -344,11 +324,6 @@ static int	print_summary(void)
 	f = (path && *path) ? fopen(path, "w") : NULL;
 	if (f)
 	{
-<<<<<<< HEAD
-		fprintf(f, "%d %d %ld %ld\n", g_ok, g_ok + g_ko, g_checks_ok, g_checks);
-		fclose(f);
-	}
-=======
 		fprintf(f, "%d %d %ld %ld %d\n", g_ok, g_ok + g_ko, g_checks_ok, g_checks,
 			g_crash);
 		fclose(f);
@@ -360,7 +335,6 @@ static int	print_summary(void)
 		fflush(stdout);
 		return (0);
 	}
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	log_printf("\n  %s " BOLD "%d/%d tests OK" RESET " (%ld/%ld verifications)\n",
 		g_ko ? ICON_KO : ICON_OK, g_ok, g_ok + g_ko, g_checks_ok, g_checks);
 	if (compact())

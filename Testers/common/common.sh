@@ -7,8 +7,6 @@ LOG_DIR="${RAKSA_LOG_DIR:-$TESTERS_DIR/logs}"
 STATUS=0
 SECTION=""
 FAILED_SECTIONS=()
-<<<<<<< HEAD
-=======
 FAILED_TESTS=()
 SECTIONS_SEEN=()
 RES_OK=0; RES_TOTAL=0; CHK_OK=0; CHK_TOTAL=0; RES_CRASH=0
@@ -16,7 +14,6 @@ SUM_OK=0; SUM_TOTAL=0; SUM_CRASH=0
 EVAL="${RAKSA_EVAL:-0}"
 FILTER="${TEST_FILTER:-}"
 export TEST_FILTER="$FILTER"
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 
 strip_colors() { sed 's/\x1b\[[0-9;]*[a-zA-Z]//g'; }
 
@@ -66,10 +63,7 @@ show_project() {
 
 title() {
 	SECTION="$*"
-<<<<<<< HEAD
-=======
 	SECTIONS_SEEN+=("$*")
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	local len
 	len=$(vislen "$*")
 	say "\n ${CYAN}${BOLD}━━ $* ${RESET}${DIM}$(repeat ━ $((56 - len)))${RESET}"
@@ -84,10 +78,7 @@ ko() {
 	FAILED_SECTIONS+=("$SECTION")
 }
 warn() { say "   ${YELLOW}!${RESET} $*"; }
-<<<<<<< HEAD
-=======
 issue() { if [ "$EVAL" = 1 ]; then ko "$@"; else warn "$@"; fi; }
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 skip() { say "   ${DIM}–  $*${RESET}"; }
 
 show_file() {
@@ -117,25 +108,17 @@ verdict() {
 		box "$GREEN" "${GREEN}${BOLD}✔  $1 : TOUT EST OK${RESET}"
 	else
 		lines+=("${RED}${BOLD}✘  $1 : A CORRIGER${RESET}" "")
-<<<<<<< HEAD
-		for s in "${FAILED_SECTIONS[@]}"; do lines+=("${RED}•${RESET} $s"); done
-=======
 		for s in "${FAILED_SECTIONS[@]}" "${FAILED_TESTS[@]}"; do
 			lines+=("${RED}•${RESET} $s")
 		done
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 		box "$RED" "${lines[@]}"
 	fi
 }
 
 log_end() {
-<<<<<<< HEAD
-	verdict "$1"
-=======
 	compare_state
 	if [ "$EVAL" = 1 ]; then eval_sheet "$1"; else verdict "$1"; fi
 	[ "$EVAL" = 1 ] && echo -e "  ${DIM}Le correcteur peut aussi te faire expliquer ton code ou te demander une petite modification.${RESET}"
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	printf '%b\n' "  ${DIM}Detail de chaque verification : ${RESET}${BOLD}raksa log${RESET}${DIM}  (ou less -R ${LOG_FILE/#$HOME/\~})${RESET}"
 }
 
@@ -144,15 +127,6 @@ run_tests() {
 	res="$(mktemp)"
 	RESULT_FILE="$res" "$1"
 	local rc=$?
-<<<<<<< HEAD
-	RES_OK=0; RES_TOTAL=0; CHK_OK=0; CHK_TOTAL=0
-	[ -s "$res" ] && read -r RES_OK RES_TOTAL CHK_OK CHK_TOTAL < "$res"
-	rm -f "$res"
-	if [ $rc -ne 0 ]; then
-		STATUS=1
-		[ "$RES_TOTAL" -eq 0 ] && say "   ${RED}✘ le testeur s'est arrete avant la fin (code $rc)${RESET}"
-		FAILED_SECTIONS+=("${2:-Tests} : $((RES_TOTAL - RES_OK)) test(s) rate(s) sur $RES_TOTAL")
-=======
 	RES_OK=0; RES_TOTAL=0; CHK_OK=0; CHK_TOTAL=0; RES_CRASH=0
 	[ -s "$res" ] && read -r RES_OK RES_TOTAL CHK_OK CHK_TOTAL RES_CRASH < "$res"
 	rm -f "$res"
@@ -165,7 +139,6 @@ run_tests() {
 			SUM_CRASH=$((SUM_CRASH + 1))
 		fi
 		FAILED_TESTS+=("${2:-Tests} : $((RES_TOTAL - RES_OK)) test(s) rate(s) sur $RES_TOTAL")
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	fi
 	return $rc
 }
@@ -190,17 +163,10 @@ check_makefile() {
 		ko "relink : un 2e make recompile quelque chose :"; show_file "$tmp" 10
 	fi
 	local rule missing=""
-<<<<<<< HEAD
-	for rule in all clean fclean re; do
-		make -C "$src" -n "$rule" >/dev/null 2>&1 || missing="$missing $rule"
-	done
-	if [ -z "$missing" ]; then ok "regles all, clean, fclean et re presentes"
-=======
 	for rule in "$lib" all clean fclean re; do
 		make -C "$src" -n "$rule" >/dev/null 2>&1 || missing="$missing $rule"
 	done
 	if [ -z "$missing" ]; then ok "regles \$(NAME), all, clean, fclean et re presentes"
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	else ko "regle(s) absente(s) :$missing"; fi
 	if grep -qE -- '-Wall' "$src/Makefile" && grep -qE -- '-Wextra' "$src/Makefile" \
 		&& grep -qE -- '-Werror' "$src/Makefile"; then
@@ -208,15 +174,12 @@ check_makefile() {
 	else
 		ko "il manque un des flags -Wall -Wextra -Werror dans le Makefile"
 	fi
-<<<<<<< HEAD
-=======
 	if grep -qE '(^|[^a-z])(gcc|clang)([^a-z]|$)' "$src/Makefile"; then
 		issue "le Makefile utilise gcc ou clang : le sujet demande cc"
 	fi
 	if grep -qE 'wildcard|\*\.c' "$src/Makefile"; then
 		issue "le Makefile utilise un wildcard (*.c) : souvent refuse en correction, liste les fichiers"
 	fi
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	rm -f "$tmp"
 	return 0
 }
@@ -310,8 +273,6 @@ run_valgrind() {
 	fi
 	rm -f "$VG_ERR"
 }
-<<<<<<< HEAD
-=======
 
 load_conf() {
 	source "$TESTERS_DIR/$1/project.conf"
@@ -577,4 +538,3 @@ intro() {
 	[ -n "$FILTER" ] && say "  ${YELLOW}Seulement les tests dont le nom contient \"$FILTER\"${RESET} ${DIM}(rendu et norme non verifies)${RESET}"
 	[ -z "$FILTER" ] && state_init "$ID" "$SRC"
 }
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)

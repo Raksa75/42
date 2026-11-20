@@ -37,14 +37,6 @@ the line) and confirm with **Enter**.
 
 It asks step by step:
 
-<<<<<<< HEAD
-1. what to do: test one project, test the three projects of this repo, or show the help;
-2. if a project is found in the current folder, whether to test it;
-3. otherwise, which project (Libft, ft_printf or get_next_line) and which folder:
-   the current folder, the one of this repo, or any other path;
-4. whether to look for memory leaks with `valgrind`;
-5. after the test: show the log, run it again, go back to the menu, or quit.
-=======
 1. what to do: test one project, simulate a peer-evaluation, test all the projects of this
    repo, show the last log, or show the help;
 2. if a project is found in the current folder, whether to test it;
@@ -53,21 +45,10 @@ It asks step by step:
 4. all the tests or only one function (you type its name, for example `ft_split`);
 5. whether to look for memory leaks with `valgrind`;
 6. after the test: show the log, run it again, go back to the menu, or quit.
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 
 The tests can also be started directly, without the menu:
 
 ```bash
-<<<<<<< HEAD
-raksa ici                # tests the project of the current folder
-raksa libft [folder]     # tests a Libft (the one of this repo by default)
-raksa printf [folder]    # tests a ft_printf
-raksa gnl [folder]       # tests a get_next_line
-raksa all                # tests the three projects of this repo
-raksa log                # shows the log of the last test
-raksa --no-valgrind      # faster, without the leak check
-raksa -h                 # help
-=======
 raksa ici [function]                # tests the project of the current folder
 raksa libft [folder] [function]     # tests a Libft (the one of this repo by default)
 raksa printf [folder] [function]    # tests a ft_printf
@@ -77,7 +58,6 @@ raksa all                           # tests all the projects of this repo
 raksa log                           # shows the log of the last test
 raksa --no-valgrind                 # faster, without the leak check
 raksa -h                            # help
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 ```
 
 The project folder can be anywhere, for example a copy of the Libft inside another
@@ -95,8 +75,6 @@ Without the installation, the scripts can also be run directly:
 ./Testers/libft/run.sh [--no-valgrind] [--eval] [--only=ft_split]
 ```
 
-<<<<<<< HEAD
-=======
 ## What is checked
 
 **Submission** (from the "Files to submit" and "Readme Requirements" parts of the subjects):
@@ -137,7 +115,6 @@ Each run is compared with the previous one on the same folder. The testers show 
 **does not pass anymore** (a change broke something) and what has been **fixed**. The results
 are kept in `Testers/logs/etat/`.
 
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 ## Logs
 
 Each run writes a log file in `Testers/logs/`, named after the project and the date
@@ -202,13 +179,6 @@ Testers/
 ├── assets/screenshots/ # the pictures of this README
 ├── run_all.sh          # runs the three testers
 ├── common/tester.h     # shared C code: runs each test in a child process, writes the log
-<<<<<<< HEAD
-├── common/common.sh    # shared shell code: Makefile, Norm, allowed functions, valgrind, log
-├── logs/               # the log files (not pushed)
-├── libft/              # run.sh + test_libft.c
-├── printf/             # run.sh + test_printf.c
-└── gnl/                # run.sh + test_gnl.c
-=======
 ├── common/common.sh    # shared shell code: submission, Makefile, Norm, valgrind, log, eval
 ├── common/run_lib.sh   # the whole test of a project that builds a library
 ├── logs/               # the log files and the results of the last runs (not pushed)
@@ -216,5 +186,6 @@ Testers/
 ├── printf/             # project.conf + run.sh + test_printf.c
 ├── gnl/                # project.conf + run.sh + test_gnl.c
 └── _modele/            # template to add a new project
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 ```
+
+These testers were written with the help of AI (Claude).

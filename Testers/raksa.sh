@@ -7,40 +7,6 @@ source "$TESTERS/common/common.sh"
 GREEN="\033[32m"; RED="\033[31m"; YELLOW="\033[33m"; CYAN="\033[36m"
 MAGENTA="\033[35m"; BOLD="\033[1m"; DIM="\033[2m"; RESET="\033[0m"
 VG_OPT=""
-<<<<<<< HEAD
-LAST_PROJECT=""
-LAST_DIR=""
-
-project_name() {
-	case "$1" in
-		libft) echo "Libft" ;;
-		printf) echo "ft_printf" ;;
-		gnl) echo "get_next_line" ;;
-	esac
-}
-
-project_header() {
-	case "$1" in
-		libft) echo "libft.h" ;;
-		printf) echo "ft_printf.h" ;;
-		gnl) echo "get_next_line.h" ;;
-	esac
-}
-
-default_dir() {
-	case "$1" in
-		libft) echo "$REPO/Libft" ;;
-		printf) echo "$REPO/Printf" ;;
-		gnl) echo "$REPO/GetNextLine" ;;
-	esac
-}
-
-detect() {
-	if [ -f "$1/libft.h" ]; then echo "libft"
-	elif [ -f "$1/ft_printf.h" ]; then echo "printf"
-	elif [ -f "$1/get_next_line.h" ]; then echo "gnl"
-	fi
-=======
 FILTER=""
 EVAL_MODE=0
 LAST_PROJECT=""
@@ -75,11 +41,25 @@ project_list() {
 	local p out=""
 	for p in $(projects); do out="$out - $(project_name "$p")"; done
 	echo "${out# - }"
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 }
 
-trap 'tput cnorm 2>/dev/null; echo; exit 130' INT
-trap 'tput cnorm 2>/dev/null' EXIT
+ALT_SCREEN=0
+LAST_STATUS=""
+
+screen_on() {
+	[ -t 1 ] || return
+	printf '\033[?1049h\033[H'
+	ALT_SCREEN=1
+}
+
+screen_off() {
+	[ "$ALT_SCREEN" = 1 ] || return
+	printf '\033[?1049l'
+	ALT_SCREEN=0
+}
+
+trap 'tput cnorm 2>/dev/null; screen_off; echo; exit 130' INT
+trap 'tput cnorm 2>/dev/null; screen_off' EXIT
 
 select_menu() {
 	local selected="$1" title="$2"
@@ -138,11 +118,7 @@ banner() {
 		"${BOLD}${RED}|_| \\_\\/_/   \\_\\_|\\_\\|____/_/   \\_\\ ${RESET}"
 		""
 		"${DIM}  Testeurs 42${RESET}"
-<<<<<<< HEAD
-		"${DIM}  Libft - ft_printf - get_next_line${RESET}"
-=======
 		"${DIM}  $(project_list)${RESET}"
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	)
 	local i=0 line cols
 	cols="$(tput cols 2>/dev/null || echo 80)"
@@ -163,22 +139,6 @@ banner() {
 }
 
 usage() {
-<<<<<<< HEAD
-	echo -e "${BOLD}raksa${RESET} - testeurs pour Libft, ft_printf et get_next_line\n"
-	echo -e "  ${CYAN}raksa${RESET}                   ouvre le menu"
-	echo -e "  ${CYAN}raksa ici${RESET}               teste le projet du dossier courant"
-	echo -e "  ${CYAN}raksa libft${RESET} [dossier]   teste une Libft"
-	echo -e "  ${CYAN}raksa printf${RESET} [dossier]  teste un ft_printf"
-	echo -e "  ${CYAN}raksa gnl${RESET} [dossier]     teste un get_next_line"
-	echo -e "  ${CYAN}raksa all${RESET}               teste les trois projets du depot"
-	echo -e "  ${CYAN}raksa log${RESET}               affiche le log du dernier test"
-	echo -e "\n  Options : ${CYAN}--no-valgrind${RESET} (plus rapide, sans les fuites), ${CYAN}-h${RESET} (aide)"
-}
-
-run_one() {
-	local project="$1"
-	local dir
-=======
 	local p
 	echo -e "${BOLD}raksa${RESET} - testeurs pour mes projets 42 ($(project_list))\n"
 	echo -e "  ${CYAN}raksa${RESET}                          ouvre le menu"
@@ -195,7 +155,6 @@ run_one() {
 
 run_one() {
 	local project="$1" dir
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	dir="$(readlink -f "$2")"
 	if [ ! -d "$dir" ]; then
 		echo -e "  ${RED}Le dossier $2 n'existe pas.${RESET}"
@@ -203,21 +162,15 @@ run_one() {
 	fi
 	LAST_PROJECT="$project"
 	LAST_DIR="$dir"
-<<<<<<< HEAD
-	PROJECT_DIR="$dir" "$TESTERS/$project/run.sh" $VG_OPT
-=======
 	PROJECT_DIR="$dir" TEST_FILTER="$FILTER" RAKSA_EVAL="$EVAL_MODE" \
 		"$TESTERS/$project/run.sh" $VG_OPT
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
+	LAST_STATUS=$?
+	return $LAST_STATUS
 }
 
 run_all() {
 	local lines=() status=0 p
-<<<<<<< HEAD
-	for p in libft printf gnl; do
-=======
 	for p in $(projects); do
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 		if run_one "$p" "$(default_dir "$p")"; then
 			lines+=("${GREEN}✔${RESET}  $(project_name "$p")")
 		else
@@ -226,6 +179,8 @@ run_all() {
 		fi
 	done
 	echo
+	LAST_PROJECT="__all__"
+	LAST_STATUS=$status
 	if [ $status -eq 0 ]; then LOG_FILE="" box "$GREEN" "${BOLD}Recapitulatif${RESET}" "" "${lines[@]}"
 	else LOG_FILE="" box "$RED" "${BOLD}Recapitulatif${RESET}" "" "${lines[@]}"; fi
 	return $status
@@ -243,17 +198,6 @@ ask_valgrind() {
 }
 
 ask_project() {
-<<<<<<< HEAD
-	CHOSEN_PROJECT=""
-	select_menu 0 "Quel projet veux-tu tester ?" \
-		"Libft" "ft_printf" "get_next_line" "${DIM}Retour${RESET}"
-	case "$MENU_RESULT" in
-		0) CHOSEN_PROJECT="libft" ;;
-		1) CHOSEN_PROJECT="printf" ;;
-		2) CHOSEN_PROJECT="gnl" ;;
-		*) return 1 ;;
-	esac
-=======
 	local list=() names=() p
 	CHOSEN_PROJECT=""
 	for p in $(projects); do list+=("$p"); names+=("$(project_name "$p")"); done
@@ -270,7 +214,6 @@ ask_scope() {
 		echo
 		read -r -e -p "$(echo -e "  ${BOLD}Nom de la fonction :${RESET} ")" FILTER || exit 0
 	fi
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 }
 
 ask_dir() {
@@ -306,11 +249,8 @@ ask_dir() {
 
 test_wizard() {
 	local detected
-<<<<<<< HEAD
-=======
 	EVAL_MODE="${1:-0}"
 	FILTER=""
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	CHOSEN_PROJECT=""
 	CHOSEN_DIR=""
 	detected="$(detect "$PWD")"
@@ -326,10 +266,6 @@ test_wizard() {
 		ask_project || return
 		ask_dir "$CHOSEN_PROJECT" || return
 	fi
-<<<<<<< HEAD
-	ask_valgrind
-	echo -e "\n  ${BOLD}C'est parti :${RESET} $(project_name "$CHOSEN_PROJECT") ${DIM}($CHOSEN_DIR)${RESET}"
-=======
 	if [ "$EVAL_MODE" = 1 ]; then
 		VG_OPT=""
 		echo -e "\n  ${MAGENTA}${BOLD}Simulation de correction :${RESET} $(project_name "$CHOSEN_PROJECT") ${DIM}($CHOSEN_DIR)${RESET}"
@@ -338,7 +274,6 @@ test_wizard() {
 		ask_valgrind
 		echo -e "\n  ${BOLD}C'est parti :${RESET} $(project_name "$CHOSEN_PROJECT") ${DIM}($CHOSEN_DIR)${RESET}"
 	fi
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	run_one "$CHOSEN_PROJECT" "$CHOSEN_DIR"
 	after_test
 }
@@ -372,7 +307,18 @@ show_log() {
 }
 
 goodbye() {
-	echo -e "\n  ${MAGENTA}A plus !${RESET}\n"
+	screen_off
+	if [ -n "$LAST_STATUS" ] && [ -n "$LAST_PROJECT" ]; then
+		local name="Tous les projets"
+		[ "$LAST_PROJECT" != "__all__" ] && name="$(project_name "$LAST_PROJECT")"
+		if [ "$LAST_STATUS" -eq 0 ]; then
+			echo -e "  ${GREEN}✔${RESET} Dernier test : $name ${GREEN}OK${RESET}"
+		else
+			echo -e "  ${RED}✘${RESET} Dernier test : $name ${RED}a corriger${RESET}"
+		fi
+		echo -e "  ${DIM}Le detail : raksa log${RESET}"
+	fi
+	echo -e "  ${MAGENTA}A plus !${RESET}"
 	exit 0
 }
 
@@ -380,17 +326,6 @@ main_menu() {
 	while true; do
 		banner
 		select_menu 0 "Que veux-tu faire ?" \
-<<<<<<< HEAD
-			"Tester un projet" "Tester les trois projets de mon depot" \
-			"Voir le dernier log" "Aide" "Quitter"
-		case "$MENU_RESULT" in
-			0) test_wizard ;;
-			1) echo; ask_valgrind; run_all
-			   echo -e "\n  ${DIM}Les logs des trois projets sont dans $TESTERS/logs/${RESET}"
-			   pause ;;
-			2) show_log || pause ;;
-			3) echo; usage; pause ;;
-=======
 			"Tester un projet" \
 			"Simuler une correction   ${DIM}(tout est verifie, note estimee)${RESET}" \
 			"Tester tous les projets de mon depot" \
@@ -403,7 +338,6 @@ main_menu() {
 			   pause ;;
 			3) show_log || pause ;;
 			4) echo; usage; pause ;;
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 			*) goodbye ;;
 		esac
 	done
@@ -418,9 +352,6 @@ for a in "$@"; do
 	esac
 done
 
-<<<<<<< HEAD
-case "${ARGS[0]}" in
-=======
 pick_dir_filter() {
 	local a
 	CLI_DIR="$1"
@@ -432,23 +363,12 @@ pick_dir_filter() {
 
 CMD="${ARGS[0]}"
 case "$CMD" in
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
-	"") main_menu ;;
+	"") screen_on; main_menu ;;
 	ici)
 		detected="$(detect "$PWD")"
 		if [ -z "$detected" ]; then
 			echo -e "${RED}Aucun projet reconnu dans ce dossier.${RESET}"; exit 1
 		fi
-<<<<<<< HEAD
-		run_one "$detected" "$PWD"
-		;;
-	libft|printf|gnl)
-		run_one "${ARGS[0]}" "${ARGS[1]:-$(default_dir "${ARGS[0]}")}"
-		;;
-	all) run_all ;;
-	log) show_log ;;
-	*) echo -e "${RED}Argument inconnu : ${ARGS[0]}${RESET}\n"; usage; exit 1 ;;
-=======
 		FILTER="${ARGS[1]}"
 		run_one "$detected" "$PWD"
 		;;
@@ -458,7 +378,7 @@ case "$CMD" in
 		if [ -z "$target" ] || [ "$target" = "ici" ]; then
 			detected="$(detect "$PWD")"
 			if [ -n "$detected" ]; then run_one "$detected" "$PWD"
-			else test_wizard 1; fi
+			else screen_on; test_wizard 1; goodbye; fi
 		elif is_project "$target"; then
 			run_one "$target" "${ARGS[2]:-$(default_dir "$target")}"
 		elif [ -d "$target" ] && [ -n "$(detect "$target")" ]; then
@@ -477,5 +397,4 @@ case "$CMD" in
 			echo -e "${RED}Argument inconnu : $CMD${RESET}\n"; usage; exit 1
 		fi
 		;;
->>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 esac
