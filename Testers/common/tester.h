@@ -106,6 +106,33 @@ static void	check_result(int ok, const char *msg)
 	} while (0)
 
 __attribute__((unused))
+static void	note_result(int kind, const char *msg)
+{
+	if (kind)
+	{
+		log_printf("      " CYAN "ℹ" RESET " %s\n", msg);
+		fprintf(stderr, "        " CYAN "↳" RESET " %s\n", msg);
+		return ;
+	}
+	log_printf("      " YELLOW "!" RESET " %s\n", msg);
+	fprintf(stderr, "        " YELLOW "!" RESET " %s\n", msg);
+}
+
+# define NOTE(...) \
+	do { \
+		char	m_[4096]; \
+		snprintf(m_, sizeof(m_), __VA_ARGS__); \
+		note_result(0, m_); \
+	} while (0)
+
+# define INFO(...) \
+	do { \
+		char	m_[4096]; \
+		snprintf(m_, sizeof(m_), __VA_ARGS__); \
+		note_result(1, m_); \
+	} while (0)
+
+__attribute__((unused))
 static void	print_bar(FILE *f, long ok, long total, int width)
 {
 	int	full;
@@ -138,7 +165,7 @@ static void	print_title(const char *title)
 		return ;
 	}
 	printf("\n " CYAN BOLD "━━ %s " RESET DIM, title);
-	printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	printf("%s", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 		+ 3 * (strlen(title) < 50 ? strlen(title) : 50));
 	printf(RESET "\n");
 	fflush(stdout);

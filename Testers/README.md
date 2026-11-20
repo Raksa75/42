@@ -9,6 +9,7 @@ header), the Makefile and the Norm, runs the tests, then checks for memory leaks
 | `libft/` | [Libft](../Libft) | Makefile (rules, flags, no relink), Norm, allowed functions only, the 43 functions compared with the libc or with the expected result (about 600 checks: limits like `INT_MIN`, `'\0'`, size 0, empty strings, `SIZE_MAX`, lists of 1000 nodes), leaks |
 | `printf/` | [ft_printf](../Printf) | Makefile, Norm, allowed functions only, every conversion (`cspdiuxX%`) compared with the real `printf`, output **and** return value (about 450 checks: all ASCII characters, `INT_MIN`/`INT_MAX`/`UINT_MAX`, `NULL` strings and pointers, mixed conversions), leaks |
 | `gnl/` | [get_next_line](../GetNextLine) | Norm, allowed functions only, compilation with and without `BUFFER_SIZE`, `BUFFER_SIZE` from 0 to 1000: empty file, with or without a final `\n`, empty lines, very long lines, lines of `BUFFER_SIZE - 1`, `BUFFER_SIZE` and `BUFFER_SIZE + 1` characters, a 2000-line file, standard input (all at once or slowly, in small pieces), invalid fds, calls after the end of the file, leaks |
+| `push_swap/` | push_swap | Group README (2 logins, contributions, algorithms, thresholds, complexities), Makefile (relink, libft compiled with its own Makefile), Norm, allowed functions, no global variable. With its own checker: errors (`Error` on stderr), already sorted input (no operation), every permutation of 2 to 5 numbers, `INT_MIN`/`INT_MAX`, each strategy (`--simple`, `--medium`, `--complex`, `--adaptive`, none) up to 500 numbers, exact `--bench` statistics (disorder, strategy and class, counts), the right method for each disorder level, performance on 100 and 500 numbers with the subject's levels, measured growth of each strategy, `valgrind` on the program (errors included) |
 
 ## Preview
 
@@ -53,6 +54,7 @@ raksa ici [function]                # tests the project of the current folder
 raksa libft [folder] [function]     # tests a Libft (the one of this repo by default)
 raksa printf [folder] [function]    # tests a ft_printf
 raksa gnl [folder] [function]       # tests a get_next_line
+raksa push_swap [folder] [function] # tests a push_swap
 raksa eval [project|ici] [folder]   # simulates a peer-evaluation, with an estimated grade
 raksa all                           # tests all the projects of this repo
 raksa log                           # shows the log of the last test
@@ -95,6 +97,24 @@ Without the installation, the scripts can also be run directly:
 
 **Code**: Norm, every requested function present, only allowed functions, no global
 variable (get_next_line), then the tests and `valgrind`.
+
+## push_swap
+
+The tester runs `push_swap` and checks its output with its own checker (the `checker_linux`
+of the evaluation is not needed). For a failed sort, the full input is saved in
+`Testers/logs/push_swap_echec_*.txt`, to replay it: `./push_swap $(cat that_file)`.
+
+- Some behaviours are not fixed by the subject (an empty argument, `"3 2 1"` in a single
+  argument, an option after the numbers...): they only give a warning `!`, but the program
+  must not crash.
+- "Performance" shows the average, best and worst number of operations, and the level
+  reached (excellent, good, valid). The worst case must be under the "valid" limit.
+- "Measured complexity" runs each strategy on 100 and 400 numbers and shows how fast the
+  number of operations grows: about n² for `--simple`, n√n for `--medium`, n log n for
+  `--complex`. A warning is shown if a strategy grows faster than its class.
+- The project folder is `Push_swap/` in this repo by default: change `REPO_DIR` in
+  `push_swap/project.conf` if yours has another name, and `DETECT` if your header is not
+  `push_swap.h`.
 
 ## Simulating a peer-evaluation
 
@@ -185,6 +205,7 @@ Testers/
 ├── libft/              # project.conf + run.sh + test_libft.c
 ├── printf/             # project.conf + run.sh + test_printf.c
 ├── gnl/                # project.conf + run.sh + test_gnl.c
+├── push_swap/          # project.conf + run.sh + test_push_swap.c (with its own checker)
 └── _modele/            # template to add a new project
 ```
 

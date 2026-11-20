@@ -156,11 +156,17 @@ check_makefile() {
 	log "     ${DIM}sortie de make :${RESET}"; strip_colors < "$tmp" | sed 's/^/       │ /' >> "$LOG_FILE"
 	if [ -f "$src/$lib" ]; then ok "make cree $lib a la racine"
 	else ko "$lib n'a pas ete cree a la racine du dossier"; rm -f "$tmp"; return 1; fi
+	local marker relinked
+	marker="$(mktemp)"
+	touch "$marker"
 	make -C "$src" >"$tmp" 2>&1
-	if grep -qE "Nothing to be done|is up to date" "$tmp"; then
+	relinked="$(find "$src" -newer "$marker" -type f \( -name '*.o' -o -name '*.a' -o -name "$lib" \) \
+		-not -path '*/.git/*' 2>/dev/null | sed "s|^$src/||" | head -5 | tr '\n' ' ')"
+	rm -f "$marker"
+	if [ -z "$relinked" ]; then
 		ok "pas de relink (un 2e make ne refait rien)"
 	else
-		ko "relink : un 2e make recompile quelque chose :"; show_file "$tmp" 10
+		ko "relink : un 2e make refait $relinked:"; show_file "$tmp" 10
 	fi
 	local rule missing=""
 	for rule in "$lib" all clean fclean re; do
@@ -208,11 +214,11 @@ check_norm() {
 check_externals() {
 	local allowed="$1" found bad compiler
 	shift
-	found="$(nm -u "$@" 2>/dev/null | awk 'NF>=2 {print $2}' | sort -u)"
+	found="$(nm -u "$@" 2>/dev/null | awk 'NF>=2 {print $2}' | sed 's/@.*//' | sort -u)"
 	bad=""
 	compiler=""
 	for f in $found; do
-		case " $allowed __stack_chk_fail _GLOBAL_OFFSET_TABLE_ " in
+		case " $allowed __stack_chk_fail _GLOBAL_OFFSET_TABLE_ __libc_start_main __cxa_finalize _ITM_deregisterTMCloneTable _ITM_registerTMCloneTable __gmon_start__ " in
 			*" $f "*) ;;
 			*)
 				if nm -A "$@" 2>/dev/null | grep -qE " [TtDdBb] $f$"; then continue; fi
@@ -352,6 +358,20 @@ check_readme() {
 	for sec in Description Instructions Resources; do
 		grep -qiE "^#+ *$sec" "$readme" || issue "README.md : section \"$sec\" absente"
 	done
+	if [ -n "$README_LOGIN" ] && [ -n "$GROUP_SIZE" ] \
+		&& [ "$(echo "${README_LOGIN//,/ }" | wc -w)" -ne "$GROUP_SIZE" ]; then
+		issue "README.md : projet a $GROUP_SIZE, la 1re ligne doit donner les $GROUP_SIZE logins (ici : $README_LOGIN)"
+	fi
+	local topic label re old_ifs="$IFS"
+	IFS=';'
+	for topic in $README_TOPICS; do
+		IFS="$old_ifs"
+		label="${topic%%:*}"
+		re="${topic#*:}"
+		grep -qiE "$re" "$readme" || issue "README.md : le sujet demande aussi $label"
+		IFS=';'
+	done
+	IFS="$old_ifs"
 	if ! sed -n '/^#\+ *[Rr]esources/,$p' "$readme" | grep -qiE '(^|[^a-z])(AI|IA)([^a-z]|$)|intelligence artificielle|artificial intelligence|Claude|ChatGPT|Copilot|LLM'; then
 		issue "README.md : la section Resources doit dire comment l'IA a ete utilisee"
 	fi
@@ -374,14 +394,16 @@ check_headers() {
 	if [ -z "$missing" ]; then ok "header 42 present dans les $n fichiers .c/.h (login : ${logins:-?})"
 	else issue "header 42 absent :$(echo $missing | cut -c1-200)"; fi
 	[ -n "$bad_name" ] && issue "le nom dans le header ne correspond pas au fichier :$bad_name"
-	if [ "$(echo $logins | wc -w)" -gt 1 ]; then
-		issue "plusieurs logins dans les headers : $logins"
-	elif [ -n "$RAKSA_LOGIN" ] && [ -n "$logins" ] && [ "$logins" != "$RAKSA_LOGIN" ]; then
+	if [ "$(echo $logins | wc -w)" -gt "${GROUP_SIZE:-1}" ]; then
+		issue "trop de logins differents dans les headers : $logins"
+	elif [ -n "$RAKSA_LOGIN" ] && [ -n "$logins" ] && [[ " $logins " != *" $RAKSA_LOGIN "* ]]; then
 		issue "les headers sont au nom de $logins, pas de $RAKSA_LOGIN"
 	fi
-	if [ -n "$README_LOGIN" ] && [ -n "$logins" ] && [[ " ${README_LOGIN//,/ } " != *" $logins "* ]]; then
-		issue "le README est signe $README_LOGIN mais les headers $logins"
-	fi
+	for l in $logins; do
+		if [ -n "$README_LOGIN" ] && [[ " ${README_LOGIN//,/ } " != *" $l "* ]]; then
+			issue "le login $l est dans les headers mais pas sur la 1re ligne du README ($README_LOGIN)"
+		fi
+	done
 }
 
 check_delivery() {

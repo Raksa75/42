@@ -171,6 +171,10 @@ run_one() {
 run_all() {
 	local lines=() status=0 p
 	for p in $(projects); do
+		if [ ! -d "$(default_dir "$p")" ]; then
+			lines+=("${DIM}–  $(project_name "$p") : pas encore dans le depot${RESET}")
+			continue
+		fi
 		if run_one "$p" "$(default_dir "$p")"; then
 			lines+=("${GREEN}✔${RESET}  $(project_name "$p")")
 		else

@@ -10,6 +10,11 @@ for t in $(for c in */project.conf; do
 	[[ "$d" == _* ]] && continue
 	echo "$(source "$c"; echo "$ORDER") $d"
 done | sort -n | cut -d' ' -f2); do
+	dir="$(source "$t/project.conf"; echo "$REPO_DIR")"
+	if [ ! -d "../$dir" ]; then
+		LINES_RECAP+=("${DIM}–  $t : pas encore dans le depot (../$dir)${RESET}")
+		continue
+	fi
 	if ./$t/run.sh "$@"; then
 		LINES_RECAP+=("${GREEN}✔${RESET}  $t")
 	else
