@@ -151,7 +151,14 @@ check_makefile() {
 		ko "pas de Makefile dans le dossier"; rm -f "$tmp"; return 1
 	fi
 	if ! make -C "$src" >"$tmp" 2>&1; then
-		ko "make a echoue :"; show_file "$tmp" 40; rm -f "$tmp"; return 1
+		ko "make a echoue :"
+		if grep -qE "error:|undefined reference|No such file|\*\*\*" "$tmp"; then
+			grep -E -B2 "error:|undefined reference|No such file|\*\*\*" "$tmp" \
+				| grep -vE "^make(\[[0-9]+\])?: (Entering|Leaving) directory|^--$" | head -n 20 > "$tmp.end"
+		else
+			grep -vE "^make(\[[0-9]+\])?: (Entering|Leaving) directory" "$tmp" | tail -n 20 > "$tmp.end"
+		fi
+		show_file "$tmp.end" 20; rm -f "$tmp" "$tmp.end"; return 1
 	fi
 	log "     ${DIM}sortie de make :${RESET}"; strip_colors < "$tmp" | sed 's/^/       │ /' >> "$LOG_FILE"
 	if [ -f "$src/$lib" ]; then ok "make cree $lib a la racine"
@@ -217,6 +224,7 @@ check_externals() {
 	found="$(nm -u "$@" 2>/dev/null | awk 'NF>=2 {print $2}' | sed 's/@.*//' | sort -u)"
 	bad=""
 	compiler=""
+	local own=""
 	for f in $found; do
 		case " $allowed __stack_chk_fail _GLOBAL_OFFSET_TABLE_ __libc_start_main __cxa_finalize _ITM_deregisterTMCloneTable _ITM_registerTMCloneTable __gmon_start__ " in
 			*" $f "*) ;;
@@ -224,12 +232,14 @@ check_externals() {
 				if nm -A "$@" 2>/dev/null | grep -qE " [TtDdBb] $f$"; then continue; fi
 				case "$f" in
 					memcpy|memset|memmove) compiler="$compiler $f" ;;
+					ft_*) own="$own $f" ;;
 					*) bad="$bad $f" ;;
 				esac ;;
 		esac
 	done
 	if [ -z "$bad" ]; then ok "seulement des fonctions autorisees ($allowed)"
 	else ko "fonctions non autorisees :$bad"; fi
+	[ -n "$own" ] && ko "$(basename "$1") appelle des fonctions qu'elle ne contient pas :$(echo $own | cut -c1-150) (ta libft doit etre ajoutee dedans)"
 	[ -n "$compiler" ] && warn "$compiler appele(s) : peut venir du compilateur, verifie ton code"
 }
 
@@ -308,11 +318,18 @@ check_files() {
 	all="$(list_files "$src")"
 	git -C "$src" rev-parse >/dev/null 2>&1 && FILES_FROM="git" || FILES_FROM="dossier"
 	local untracked=""
+	local found
 	for f in $REQUIRED; do
-		if [ ! -e "$src/$f" ]; then missing="$missing $f"
-		elif [ "$FILES_FROM" = "git" ] && ! grep -qx "$f" <<< "$all"; then untracked="$untracked $f"; fi
+		found="$f"
+		if [[ "$f" == '**/'* ]]; then
+			found="$(find_in "$src" "${f#\*\*/}")"
+			found="${found#$src/}"
+			[ -z "$found" ] && found="$f"
+		fi
+		if [ ! -e "$src/$found" ]; then missing="$missing ${f#\*\*/}"
+		elif [ "$FILES_FROM" = "git" ] && ! grep -qx "$found" <<< "$all"; then untracked="$untracked $found"; fi
 	done
-	if [ -z "$missing" ]; then ok "fichiers demandes presents : $REQUIRED"
+	if [ -z "$missing" ]; then ok "fichiers demandes presents : ${REQUIRED//\*\*\//}"
 	else ko "fichier(s) manquant(s) :$missing"; fi
 	[ -n "$untracked" ] && issue "pas encore dans git (fais git add) :$untracked"
 	while IFS= read -r rel; do
@@ -386,14 +403,18 @@ check_headers() {
 			missing="$missing $name"; continue
 		fi
 		hname="$(sed -n 4p "$f" | sed -E 's|^/\* +([^ ]+) .*|\1|')"
-		[ "$hname" != "$name" ] && bad_name="$bad_name $name($hname)"
+		[ "$hname" != "$name" ] && bad_name="$bad_name|$name (header : $hname)"
 		l="$(sed -n 6p "$f" | sed -E 's|.*By: ([^ ]+) <.*|\1|')"
 		logins="$logins $l"
 	done < <(src_files "$src")
 	logins="$(echo $logins | tr ' ' '\n' | sort -u | tr '\n' ' ' | sed 's/ $//')"
 	if [ -z "$missing" ]; then ok "header 42 present dans les $n fichiers .c/.h (login : ${logins:-?})"
 	else issue "header 42 absent :$(echo $missing | cut -c1-200)"; fi
-	[ -n "$bad_name" ] && issue "le nom dans le header ne correspond pas au fichier :$bad_name"
+	if [ -n "$bad_name" ]; then
+		local nb
+		nb=$(printf '%s' "$bad_name" | tr '|' '\n' | grep -c .)
+		issue "$nb fichier(s) dont le header donne un autre nom de fichier : $(printf '%s' "$bad_name" | tr '|' '\n' | grep . | head -3 | paste -sd ',' | sed 's/,/, /g')$([ $nb -gt 3 ] && echo ", ...")"
+	fi
 	if [ "$(echo $logins | wc -w)" -gt "${GROUP_SIZE:-1}" ]; then
 		issue "trop de logins differents dans les headers : $logins"
 	elif [ -n "$RAKSA_LOGIN" ] && [ -n "$logins" ] && [[ " $logins " != *" $RAKSA_LOGIN "* ]]; then
@@ -414,12 +435,43 @@ check_delivery() {
 	check_headers "$1"
 }
 
-check_symbols() {
+missing_symbols() {
 	local defined missing="" f
 	defined="$(nm --defined-only "$@" 2>/dev/null | awk 'NF>=3 && $2 ~ /[TW]/ {print $3}' | sort -u)"
 	for f in $SYMBOLS; do
 		grep -qx "$f" <<< "$defined" || missing="$missing $f"
 	done
+	echo "$missing"
+}
+
+make_stubs() {
+	local f out="$1/stubs.c"
+	[ -z "$MISSING_SYMBOLS" ] && return 1
+	echo '#include <unistd.h>' > "$out"
+	for f in $MISSING_SYMBOLS; do
+		printf 'void %s(void)\n{\n\twrite(2, "        \\033[31m↳\\033[0m %s : fonction absente de la bibliotheque\\n", %d);\n\t_exit(3);\n}\n' \
+			"$f" "$f" "$(printf '        \033[31m↳\033[0m %s : fonction absente de la bibliotheque\n' "$f" | wc -c)" >> "$out"
+	done
+	cc -c "$out" -o "$1/stubs.o" 2>/dev/null
+}
+
+include_flags() {
+	INC=()
+	local d
+	while IFS= read -r d; do
+		[ -n "$d" ] && INC+=("-I" "$d")
+	done < <(find "$1" -name '*.h' -not -path '*/.git/*' -exec dirname {} \; | sort -u)
+	[ ${#INC[@]} -eq 0 ] && INC=("-I" "$1")
+}
+
+find_in() {
+	find "$1" -name "$2" -not -path '*/.git/*' 2>/dev/null | head -1
+}
+
+check_symbols() {
+	local missing
+	missing="$(missing_symbols "$@")"
+	MISSING_SYMBOLS="$missing"
 	if [ -z "$missing" ] && [ "$(echo $SYMBOLS | wc -w)" -eq 1 ]; then ok "la fonction $SYMBOLS est bien definie"
 	elif [ -z "$missing" ]; then ok "les $(echo $SYMBOLS | wc -w) fonctions demandees sont presentes"
 	else ko "fonction(s) demandee(s) absente(s) :$missing"; fi

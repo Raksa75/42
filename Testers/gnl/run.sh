@@ -20,16 +20,31 @@ else
 	title "Fichiers"
 fi
 for f in get_next_line.c get_next_line_utils.c get_next_line.h; do
-	[ -f "$SRC/$f" ] || { ko "$f manquant : impossible de tester"; log_end "$TITLE"; exit 1; }
+	p="$(find_in "$SRC" "$f")"
+	[ -z "$p" ] && { ko "$f introuvable : impossible de tester"; log_end "$TITLE"; exit 1; }
+	[ "$p" != "$SRC/$f" ] && issue "$f est dans ${p#$SRC/} : le sujet le veut a la racine du depot"
+	case "$f" in
+		get_next_line.c) GNL_C="$p" ;;
+		get_next_line_utils.c) GNL_U="$p" ;;
+		*) GNL_H="$p" ;;
+	esac
 done
 [ -n "$FILTER" ] && ok "get_next_line.c, get_next_line_utils.c et get_next_line.h presents"
+include_flags "$SRC"
+if ! tr -d '\n' < "$GNL_H" | grep -qE 'char[[:space:]]*\*[[:space:]]*get_next_line[[:space:]]*\([[:space:]]*int[[:space:]]+[a-z_]*[[:space:]]*\)'; then
+	title "Prototype"
+	ko "get_next_line.h ne declare pas char *get_next_line(int fd) : ancien sujet (int get_next_line(int fd, char **line)) ?"
+	grep -n "get_next_line *(" "$GNL_H" | head -3 > "$TMP/proto"
+	show_file "$TMP/proto" 3
+	log_end "$TITLE"; exit 1
+fi
 
-[ -z "$FILTER" ] && check_norm "$SRC/get_next_line.c" "$SRC/get_next_line_utils.c" "$SRC/get_next_line.h"
+[ -z "$FILTER" ] && check_norm "$GNL_C" "$GNL_U" "$GNL_H"
 
 if [ -z "$FILTER" ]; then
 	title "Compilation"
-	if cc -Wall -Wextra -Werror -c "$SRC/get_next_line.c" -o "$TMP/a.o" -I "$SRC" 2>"$TMP/cc.log" \
-		&& cc -Wall -Wextra -Werror -c "$SRC/get_next_line_utils.c" -o "$TMP/b.o" -I "$SRC" 2>>"$TMP/cc.log"; then
+	if cc -Wall -Wextra -Werror -c "$GNL_C" -o "$TMP/a.o" "${INC[@]}" 2>"$TMP/cc.log" \
+		&& cc -Wall -Wextra -Werror -c "$GNL_U" -o "$TMP/b.o" "${INC[@]}" 2>>"$TMP/cc.log"; then
 		ok "compile avec -Wall -Wextra -Werror sans -D BUFFER_SIZE"
 		check_symbols "$TMP/a.o" "$TMP/b.o"
 		check_externals "$ALLOWED" "$TMP/a.o" "$TMP/b.o"
@@ -44,11 +59,11 @@ title "Tests pour chaque BUFFER_SIZE"
 [ $USE_VG -eq 0 ] && skip "valgrind non utilise (absent ou --no-valgrind)"
 for size in $SIZES; do
 	label="$(printf 'BUFFER_SIZE = %-5s' "$size")"
-	if ! cc -Wall -Wextra -Werror -g -D BUFFER_SIZE=$size -I "$SRC" -c \
-		"$SRC/get_next_line.c" -o "$TMP/gnl.o" 2>"$TMP/cc.log" \
-		|| ! cc -Wall -Wextra -Werror -g -D BUFFER_SIZE=$size -I "$SRC" -c \
-		"$SRC/get_next_line_utils.c" -o "$TMP/gnl_utils.o" 2>>"$TMP/cc.log" \
-		|| ! cc -Wall -Wextra -g -D BUFFER_SIZE=$size -I "$SRC" test_gnl.c \
+	if ! cc -Wall -Wextra -Werror -g -D BUFFER_SIZE=$size "${INC[@]}" -c \
+		"$GNL_C" -o "$TMP/gnl.o" 2>"$TMP/cc.log" \
+		|| ! cc -Wall -Wextra -Werror -g -D BUFFER_SIZE=$size "${INC[@]}" -c \
+		"$GNL_U" -o "$TMP/gnl_utils.o" 2>>"$TMP/cc.log" \
+		|| ! cc -Wall -Wextra -g -D BUFFER_SIZE=$size "${INC[@]}" test_gnl.c \
 		"$TMP/gnl.o" "$TMP/gnl_utils.o" -o "$TMP/test_$size" 2>>"$TMP/cc.log"; then
 		ko "$label ne compile pas :"
 		show_file "$TMP/cc.log" 30

@@ -769,6 +769,7 @@ static void	t_put_fd(void)
 	PUT_TEST(ft_putnbr_fd(INT_MIN, p_[1]), "-2147483648");
 }
 
+#ifndef NO_LIST
 static int	g_del_count = 0;
 
 static void	del_count(void *p)
@@ -951,6 +952,14 @@ static void	t_lstiter_map(void)
 	free(lst);
 }
 
+#else
+
+static void	t_no_list(void)
+{
+	CHECK(0, "le type t_list n'est pas dans libft.h : les fonctions ft_lst* ne peuvent pas etre testees");
+}
+#endif
+
 int	main(void)
 {
 	print_title("Libft - Partie 1 : fonctions de la libc");
@@ -977,10 +986,14 @@ int	main(void)
 	run_test("ft_strmapi / ft_striteri", t_strmapi_striteri);
 	run_test("ft_putchar_fd / putstr_fd / putendl_fd / putnbr_fd", t_put_fd);
 	print_title("Libft - Partie 3 : listes chainees");
+#ifndef NO_LIST
 	run_test("ft_lstnew", t_lstnew);
 	run_test("ft_lstadd_front / lstadd_back / lstsize / lstlast", t_lstadd_size_last);
 	run_test("listes de 1000 noeuds", t_lst_long);
 	run_test("ft_lstdelone / ft_lstclear", t_lstdelone_clear);
 	run_test("ft_lstiter / ft_lstmap", t_lstiter_map);
+#else
+	run_test("listes chainees (t_list absent de libft.h)", t_no_list);
+#endif
 	return (print_summary());
 }

@@ -21,15 +21,31 @@ intro
 [ -z "$FILTER" ] && check_delivery "$SRC"
 check_makefile "$SRC" "$LIB" || { log_end "$TITLE"; exit 1; }
 
+MISSING_SYMBOLS="$(missing_symbols "$SRC/$LIB")"
+BONUS_DONE=0
+if [ -n "${MISSING_SYMBOLS// /}" ] && make -C "$SRC" -n bonus >/dev/null 2>&1; then
+	make -C "$SRC" bonus >"$TMP/bonus.log" 2>&1 && BONUS_DONE=1
+	MISSING_SYMBOLS="$(missing_symbols "$SRC/$LIB")"
+fi
+
 if [ -z "$FILTER" ]; then
 	check_norm $(src_files "$SRC")
 	title "Fonctions"
+	[ $BONUS_DONE -eq 1 ] && skip "des fonctions manquaient apres make : make bonus a ete lance (ancien sujet ?)"
 	check_symbols "$SRC/$LIB"
 	check_externals "$ALLOWED" "$SRC/$LIB"
 fi
 
-if ! cc -Wall -Wextra -g $TEST_FLAGS -I "$SRC" "$TEST_SRC" "$SRC/$LIB" -o "$TMP/test" \
-	2>"$TMP/cc.log"; then
+include_flags "$SRC"
+EXTRA_OBJ=()
+make_stubs "$TMP" && EXTRA_OBJ=("$TMP/stubs.o")
+for h in $DETECT; do
+	hp="$(find_in "$SRC" "$h")"
+	[ -n "$hp" ] && [ -n "$NEEDS_TYPE" ] && ! grep -q "$NEEDS_TYPE" "$hp" && TEST_FLAGS="$TEST_FLAGS $NEEDS_FLAG"
+done
+
+if ! cc -Wall -Wextra -g -Wno-implicit-function-declaration -Wno-int-conversion $TEST_FLAGS \
+	"${INC[@]}" "$TEST_SRC" "$SRC/$LIB" "${EXTRA_OBJ[@]}" -o "$TMP/test" 2>"$TMP/cc.log"; then
 	title "Compilation du testeur"
 	ko "le testeur ne compile pas avec ton projet (prototype different ou fonction manquante ?) :"
 	show_file "$TMP/cc.log" 30

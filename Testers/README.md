@@ -116,6 +116,28 @@ of the evaluation is not needed). For a failed sort, the full input is saved in
   `push_swap/project.conf` if yours has another name, and `DETECT` if your header is not
   `push_swap.h`.
 
+## Testing someone else's project
+
+The testers work on any folder, for example the repository of a student you evaluate:
+
+```bash
+git clone <their repository> ~/correction
+cd ~/correction
+raksa ici            # or: raksa eval ici
+```
+
+- The project is recognised by its header, even in a sub-folder (`include/`, `inc/`...),
+  and the headers are found wherever they are.
+- If a function is missing, the rest is still tested: only the tests of that function fail,
+  with "fonction absente de la bibliotheque".
+- For an older Libft subject (linked lists in the bonus part), `make bonus` is run when
+  functions are missing after `make`.
+- Projects written for an older version of a subject are reported clearly, for example a
+  `get_next_line(int fd, char **line)` prototype, or a push_swap without `--simple` or
+  `--bench`.
+- Nothing is left in their folder: `make fclean` is run at the end if the program or the
+  library did not exist before the test.
+
 ## Simulating a peer-evaluation
 
 `raksa eval` (or "Simuler une correction" in the menu) checks everything, with `valgrind`,

@@ -31,9 +31,15 @@ project_header() { conf_get "$1" DETECT; }
 default_dir() { echo "$REPO/$(conf_get "$1" REPO_DIR)"; }
 
 detect() {
-	local p
+	local p h
 	for p in $(projects); do
-		[ -f "$1/$(project_header "$p")" ] && { echo "$p"; return; }
+		h="$(project_header "$p")"
+		[ -f "$1/$h" ] && { echo "$p"; return; }
+	done
+	for p in $(projects); do
+		h="$(project_header "$p")"
+		[ -n "$(find "$1" -maxdepth 3 -name "$h" -not -path '*/.git/*' 2>/dev/null | head -1)" ] \
+			&& { echo "$p"; return; }
 	done
 }
 
@@ -351,6 +357,8 @@ ARGS=()
 for a in "$@"; do
 	case "$a" in
 		--no-valgrind) VG_OPT="--no-valgrind" ;;
+		--only=*) FILTER="${a#--only=}" ;;
+		--eval) EVAL_MODE=1 ;;
 		-h|--help) usage; exit 0 ;;
 		*) ARGS+=("$a") ;;
 	esac
@@ -373,7 +381,7 @@ case "$CMD" in
 		if [ -z "$detected" ]; then
 			echo -e "${RED}Aucun projet reconnu dans ce dossier.${RESET}"; exit 1
 		fi
-		FILTER="${ARGS[1]}"
+		[ -n "${ARGS[1]}" ] && FILTER="${ARGS[1]}"
 		run_one "$detected" "$PWD"
 		;;
 	eval)
