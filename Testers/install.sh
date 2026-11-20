@@ -4,7 +4,7 @@ TESTERS="$(dirname "$(readlink -f "$0")")"
 BIN="$HOME/.local/bin"
 GREEN="\033[32m"; YELLOW="\033[33m"; BOLD="\033[1m"; RESET="\033[0m"
 
-chmod +x "$TESTERS"/*.sh "$TESTERS"/*/run.sh
+chmod +x "$TESTERS"/*.sh "$TESTERS"/*/run.sh "$TESTERS"/common/*.sh
 mkdir -p "$BIN"
 ln -sf "$TESTERS/raksa.sh" "$BIN/raksa"
 [ -L "$BIN/correcteur" ] && rm -f "$BIN/correcteur"

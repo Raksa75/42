@@ -1,6 +1,10 @@
 #ifndef TESTER_H
 # define TESTER_H
 
+# ifndef _GNU_SOURCE
+#  define _GNU_SOURCE
+# endif
+
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
@@ -31,7 +35,14 @@ static int	g_nb_msg = 0;
 static long	g_checks_ok = 0;
 static long	g_checks = 0;
 
+<<<<<<< HEAD
 static long	*g_shared = NULL;
+=======
+static int	g_crash = 0;
+static long	*g_shared = NULL;
+static char	g_skipped[8192] = "";
+static char	g_pending_title[256] = "";
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 
 __attribute__((unused))
 static void	log_printf(const char *fmt, ...)
@@ -125,6 +136,14 @@ static void	print_title(const char *title)
 	log_printf("\n" CYAN BOLD "━━ %s ━━" RESET "\n", title);
 	if (compact())
 		return ;
+<<<<<<< HEAD
+=======
+	if (getenv("TEST_FILTER") && *getenv("TEST_FILTER"))
+	{
+		snprintf(g_pending_title, sizeof(g_pending_title), "%s", title);
+		return ;
+	}
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	printf("\n " CYAN BOLD "━━ %s " RESET DIM, title);
 	printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 		+ 3 * (strlen(title) < 50 ? strlen(title) : 50));
@@ -177,10 +196,78 @@ static int	report(const char *name, int status, long *count)
 	else
 		log_printf("    " RED BOLD "→ KO" RESET " (%ld/%ld verifications OK,"
 			" voir les lignes ✘ ci-dessus)\n", count[0], count[1]);
+<<<<<<< HEAD
+=======
+	if (!ok && tag[0])
+		return (2);
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	return (ok);
 }
 
 __attribute__((unused))
+<<<<<<< HEAD
+=======
+static void	save_state(const char *name, int ok)
+{
+	const char	*path;
+	const char	*prefix;
+	FILE		*f;
+
+	path = getenv("STATE_FILE");
+	if (!path || !*path)
+		return ;
+	f = fopen(path, "a");
+	if (!f)
+		return ;
+	prefix = getenv("TEST_PREFIX");
+	fprintf(f, "%s\ttest : %s%s\n", ok ? "OK" : "KO", prefix ? prefix : "", name);
+	fclose(f);
+}
+
+__attribute__((unused))
+static void	strip_ft(const char *src, char *dst, size_t size)
+{
+	size_t	j;
+
+	j = 0;
+	while (*src && j + 1 < size)
+	{
+		if (strncasecmp(src, "ft_", 3) == 0)
+			src += 3;
+		else
+			dst[j++] = *src++;
+	}
+	dst[j] = '\0';
+}
+
+__attribute__((unused))
+static int	filtered_out(const char *name)
+{
+	const char	*filter;
+	char		f[256];
+	char		n[512];
+	size_t		len;
+
+	filter = getenv("TEST_FILTER");
+	if (!filter || !*filter)
+		return (0);
+	strip_ft(filter, f, sizeof(f));
+	strip_ft(name, n, sizeof(n));
+	if (strcasestr(n, f))
+	{
+		if (g_pending_title[0] && !compact())
+			printf("\n " CYAN BOLD "━━ %s" RESET "\n", g_pending_title);
+		g_pending_title[0] = '\0';
+		return (0);
+	}
+	len = strlen(g_skipped);
+	if (len + strlen(name) + 16 < sizeof(g_skipped))
+		snprintf(g_skipped + len, sizeof(g_skipped) - len, "      • %s\n", name);
+	return (1);
+}
+
+__attribute__((unused))
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 static void	run_test(const char *name, void (*fn)(void))
 {
 	int		pipefd[2];
@@ -189,6 +276,10 @@ static void	run_test(const char *name, void (*fn)(void))
 	char	buf[4096];
 	ssize_t	n;
 
+	int		res;
+
+	if (filtered_out(name))
+		return ;
 	fflush(stdout);
 	fflush(stderr);
 	log_printf("\n  " BOLD "▸ %s" RESET "\n", name);
@@ -216,10 +307,21 @@ static void	run_test(const char *name, void (*fn)(void))
 	waitpid(pid, &status, 0);
 	g_checks_ok += g_shared[0];
 	g_checks += g_shared[1];
+<<<<<<< HEAD
 	if (report(name, status, g_shared))
 		g_ok++;
 	else
 		g_ko++;
+=======
+	res = report(name, status, g_shared);
+	save_state(name, res == 1);
+	if (res == 1)
+		g_ok++;
+	else
+		g_ko++;
+	if (res == 2)
+		g_crash++;
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	fflush(stdout);
 	n = read(pipefd[0], buf, sizeof(buf) - 1);
 	while (n > 0)
@@ -242,9 +344,23 @@ static int	print_summary(void)
 	f = (path && *path) ? fopen(path, "w") : NULL;
 	if (f)
 	{
+<<<<<<< HEAD
 		fprintf(f, "%d %d %ld %ld\n", g_ok, g_ok + g_ko, g_checks_ok, g_checks);
 		fclose(f);
 	}
+=======
+		fprintf(f, "%d %d %ld %ld %d\n", g_ok, g_ok + g_ko, g_checks_ok, g_checks,
+			g_crash);
+		fclose(f);
+	}
+	if (g_ok + g_ko == 0 && getenv("TEST_FILTER") && !compact())
+	{
+		printf("\n   " YELLOW "!" RESET " aucun test ne correspond a \"%s\"."
+			" Les tests de ce projet :\n%s", getenv("TEST_FILTER"), g_skipped);
+		fflush(stdout);
+		return (0);
+	}
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	log_printf("\n  %s " BOLD "%d/%d tests OK" RESET " (%ld/%ld verifications)\n",
 		g_ko ? ICON_KO : ICON_OK, g_ok, g_ok + g_ko, g_checks_ok, g_checks);
 	if (compact())

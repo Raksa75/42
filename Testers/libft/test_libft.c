@@ -975,10 +975,14 @@ int	main(void)
 	run_test("ft_split", t_split);
 	run_test("ft_itoa", t_itoa);
 	run_test("ft_strmapi / ft_striteri", t_strmapi_striteri);
-	run_test("ft_putchar_fd / putstr / putendl / putnbr", t_put_fd);
+	run_test("ft_putchar_fd / putstr_fd / putendl_fd / putnbr_fd", t_put_fd);
 	print_title("Libft - Partie 3 : listes chainees");
 	run_test("ft_lstnew", t_lstnew);
+<<<<<<< HEAD
 	run_test("ft_lstadd_front / back / size / last", t_lstadd_size_last);
+=======
+	run_test("ft_lstadd_front / lstadd_back / lstsize / lstlast", t_lstadd_size_last);
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 	run_test("listes de 1000 noeuds", t_lst_long);
 	run_test("ft_lstdelone / ft_lstclear", t_lstdelone_clear);
 	run_test("ft_lstiter / ft_lstmap", t_lstiter_map);

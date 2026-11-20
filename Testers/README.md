@@ -1,7 +1,8 @@
 # Testers
 
-Testers for my 42 projects. Each tester compiles the project, checks the Makefile and the
-Norm, runs the tests, then checks for memory leaks with `valgrind`.
+Testers for my 42 projects. Each tester checks what will be submitted (files, README, 42
+header), the Makefile and the Norm, runs the tests, then checks for memory leaks with
+`valgrind`. It can also simulate a peer-evaluation and give an estimated grade.
 
 | Folder | Project tested | What is checked |
 |---|---|---|
@@ -36,16 +37,28 @@ the line) and confirm with **Enter**.
 
 It asks step by step:
 
+<<<<<<< HEAD
 1. what to do: test one project, test the three projects of this repo, or show the help;
 2. if a project is found in the current folder, whether to test it;
 3. otherwise, which project (Libft, ft_printf or get_next_line) and which folder:
    the current folder, the one of this repo, or any other path;
 4. whether to look for memory leaks with `valgrind`;
 5. after the test: show the log, run it again, go back to the menu, or quit.
+=======
+1. what to do: test one project, simulate a peer-evaluation, test all the projects of this
+   repo, show the last log, or show the help;
+2. if a project is found in the current folder, whether to test it;
+3. otherwise, which project and which folder: the current folder, the one of this repo, or
+   any other path;
+4. all the tests or only one function (you type its name, for example `ft_split`);
+5. whether to look for memory leaks with `valgrind`;
+6. after the test: show the log, run it again, go back to the menu, or quit.
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 
 The tests can also be started directly, without the menu:
 
 ```bash
+<<<<<<< HEAD
 raksa ici                # tests the project of the current folder
 raksa libft [folder]     # tests a Libft (the one of this repo by default)
 raksa printf [folder]    # tests a ft_printf
@@ -54,18 +67,77 @@ raksa all                # tests the three projects of this repo
 raksa log                # shows the log of the last test
 raksa --no-valgrind      # faster, without the leak check
 raksa -h                 # help
+=======
+raksa ici [function]                # tests the project of the current folder
+raksa libft [folder] [function]     # tests a Libft (the one of this repo by default)
+raksa printf [folder] [function]    # tests a ft_printf
+raksa gnl [folder] [function]       # tests a get_next_line
+raksa eval [project|ici] [folder]   # simulates a peer-evaluation, with an estimated grade
+raksa all                           # tests all the projects of this repo
+raksa log                           # shows the log of the last test
+raksa --no-valgrind                 # faster, without the leak check
+raksa -h                            # help
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 ```
 
 The project folder can be anywhere, for example a copy of the Libft inside another
 project, or the folder of a 42 submission repository.
 
+`[function]` runs only the tests whose name contains it, which is useful to check a fix
+quickly: `raksa libft ft_split`, `raksa ici atoi`, `raksa printf %x`, `raksa gnl stdin`.
+The `ft_` prefix and the case do not matter. If nothing matches, the list of the tests is
+shown.
+
 Without the installation, the scripts can also be run directly:
 
 ```bash
 ./Testers/run_all.sh
-./Testers/libft/run.sh
+./Testers/libft/run.sh [--no-valgrind] [--eval] [--only=ft_split]
 ```
 
+<<<<<<< HEAD
+=======
+## What is checked
+
+**Submission** (from the "Files to submit" and "Readme Requirements" parts of the subjects):
+
+- the required files are there (and, in a git repository, added to git);
+- no file that should not be submitted: `.o`, `.a`, `a.out`, executables,
+  `Zone.Identifier`, `.swp`... In a git repository, only the files tracked by git are
+  checked, since this is what the evaluator will see;
+- files that are not in the subject's list are reported;
+- `README.md`: the first line in italics (*This activity has been created as part of the 42
+  curriculum by login.*), the Description, Instructions and Resources sections, and how AI
+  was used;
+- the 42 header in every `.c` and `.h`, with the right file name and the same login
+  everywhere (and the same as in the README).
+
+**Makefile**: `$(NAME)`, `all`, `clean`, `fclean` and `re` rules, `-Wall -Wextra -Werror`,
+`cc`, no relink, no wildcard (`*.c`).
+
+**Code**: Norm, every requested function present, only allowed functions, no global
+variable (get_next_line), then the tests and `valgrind`.
+
+## Simulating a peer-evaluation
+
+`raksa eval` (or "Simuler une correction" in the menu) checks everything, with `valgrind`,
+and ends with an evaluation sheet and an estimated grade:
+
+- an error in the preliminary part (files, README, header, Norm, Makefile, compilation,
+  forbidden function) gives 0, as in a real evaluation;
+- a crash, an infinite loop or a memory leak gives 0;
+- a failed test also gives 0: one function that does not work is usually enough for that.
+
+It is only an estimation: the evaluator can test other cases, ask you to explain your code,
+or ask for a small modification.
+
+## Comparing with the last run
+
+Each run is compared with the previous one on the same folder. The testers show what
+**does not pass anymore** (a change broke something) and what has been **fixed**. The results
+are kept in `Testers/logs/etat/`.
+
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 ## Logs
 
 Each run writes a log file in `Testers/logs/`, named after the project and the date
@@ -102,6 +174,24 @@ The `logs/` folder is in `.gitignore`, so the logs are not pushed.
 - If `libft.a` or `libftprintf.a` did not exist before the test, `make fclean` is run at the
   end, so no `.o` or `.a` file is left in the project folder.
 
+## Adding a tester for a new project
+
+The menu and `raksa all` find the projects by themselves: each folder with a `project.conf`
+is a project. For a project that builds a library with a Makefile:
+
+1. copy `Testers/_modele/` to a new folder, for example `Testers/pipex/`
+   (folders starting with `_` are ignored);
+2. fill in `project.conf`: name, folder in the repo, header used to recognise the project,
+   name of the library, files to submit, allowed functions, requested functions;
+3. write the tests in the `.c` file, with `run_test("name", function)` and
+   `CHECK(condition, "message with the values", ...)`;
+4. run `raksa`: the new project is in the menu.
+
+`run.sh` uses `common/run_lib.sh`, which already does the submission, Makefile, Norm,
+functions, tests and `valgrind` parts. For a project that is not a library (like
+get_next_line, or a program), write your own `run.sh` using the functions of
+`common/common.sh`, as in `gnl/run.sh`.
+
 ## Files
 
 ```
@@ -112,9 +202,19 @@ Testers/
 ├── assets/screenshots/ # the pictures of this README
 ├── run_all.sh          # runs the three testers
 ├── common/tester.h     # shared C code: runs each test in a child process, writes the log
+<<<<<<< HEAD
 ├── common/common.sh    # shared shell code: Makefile, Norm, allowed functions, valgrind, log
 ├── logs/               # the log files (not pushed)
 ├── libft/              # run.sh + test_libft.c
 ├── printf/             # run.sh + test_printf.c
 └── gnl/                # run.sh + test_gnl.c
+=======
+├── common/common.sh    # shared shell code: submission, Makefile, Norm, valgrind, log, eval
+├── common/run_lib.sh   # the whole test of a project that builds a library
+├── logs/               # the log files and the results of the last runs (not pushed)
+├── libft/              # project.conf + run.sh + test_libft.c
+├── printf/             # project.conf + run.sh + test_printf.c
+├── gnl/                # project.conf + run.sh + test_gnl.c
+└── _modele/            # template to add a new project
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
 ```

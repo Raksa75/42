@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd "$(dirname "$0")" || exit 1
+<<<<<<< HEAD
 source ../common/common.sh
 SRC="${PROJECT_DIR:-../../Printf}"
 TMP="$(mktemp -d)"
@@ -39,3 +40,6 @@ run_valgrind "$TMP/test" ""
 
 log_end "FT_PRINTF"
 exit $STATUS
+=======
+source ../common/run_lib.sh "$@"
+>>>>>>> 851f1b2 (MAJ testeur, ajout de test sur fonctions precise, check norme et valgrind avec raksa exam, check si fichier en trop (.o ..etc), check de header)
