@@ -1,4 +1,4 @@
-# 42 Paris - nzimmerm
+# 42 Paris
 
 My projects from the **42 common core**, written in C following the 42 Norm.
 
