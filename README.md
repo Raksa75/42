@@ -1,6 +1,7 @@
 # 42 Paris
 
-My projects from the **42 common core**, written in C following the 42 Norm.
+My projects from the **42 common core**, written in C following the 42 Norm, and a few
+personal projects made to practise.
 
 Each project has its own folder and its own `README.md` with a full description,
 compilation instructions and resources.
@@ -12,7 +13,16 @@ compilation instructions and resources.
 | [Libft](./Libft) | My own C library: libc functions, string utilities and linked lists | ✅ Done |
 | [ft_printf](./Printf) | Recode of the `printf()` function, using variadic functions | ✅ Done |
 | [get_next_line](./GetNextLine) | Read a file line by line from a file descriptor | ✅ Done |
-| [Testers](./Testers) | My own testers for the projects above, with the `raksa` menu | ✅ Done |
+| push_swap | Sort a stack of numbers with a limited set of operations, with several strategies | 🚧 In progress |
+| [Testers](./Testers) | My own testers for these projects, with the `raksa` menu | ✅ Done |
+
+## Games
+
+Small personal projects, outside the 42 curriculum, to practise what I learned.
+
+| Game | Description | Status |
+|---|---|---|
+| [Pierre Feuille Ciseaux](./Games/PFC) | Rock-paper-scissors in the terminal against the computer, with a menu and a score | ✅ Done |
 
 ## Repository structure
 
@@ -34,11 +44,13 @@ compilation instructions and resources.
 │   ├── get_next_line.h
 │   ├── get_next_line.c
 │   └── get_next_line_utils.c
-└── Testers/                     # testers for the three projects
+├── Games/                       # personal projects
+│   └── PFC/                     # rock-paper-scissors (uses ft_printf)
+└── Testers/                     # testers for the projects
     ├── README.md
     ├── raksa.sh                 # the "raksa" menu
     ├── install.sh
-    └── libft/  printf/  gnl/
+    └── libft/  printf/  gnl/  push_swap/
 ```
 
 ## Usage
@@ -67,12 +79,22 @@ cd GetNextLine
 cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 get_next_line.c get_next_line_utils.c main.c
 ```
 
+**The games** have their own Makefile, which also builds the libraries they use:
+
+```bash
+cd Games/PFC
+make
+./pfc
+```
+
 Every project compiles with `cc -Wall -Wextra -Werror`. See each project's README for details.
 
 ## Testing
 
-The [Testers](./Testers) folder checks each project: Makefile, Norm, results compared with
-the original functions, and memory leaks with `valgrind`.
+The [Testers](./Testers) folder checks each project: submission files and README, Makefile,
+Norm, allowed functions, results compared with the original functions, and memory leaks
+with `valgrind`. They also work on someone else's project, for example during a
+peer-evaluation.
 
 Install the `raksa` command once:
 
@@ -84,9 +106,11 @@ Then type `raksa` from any folder: a menu opens, to choose with the arrow keys a
 which project and which folder to test. It works on Linux and on Windows with WSL.
 
 ```bash
-raksa              # opens the menu
-raksa ici          # tests the project of the current folder
-raksa all          # tests the three projects of this repo
+raksa                 # opens the menu
+raksa ici             # tests the project of the current folder
+raksa libft ft_split  # runs only the tests of one function
+raksa eval ici        # simulates a peer-evaluation, with an estimated grade
+raksa all             # tests all the projects of this repo
 ```
 
 See the [Testers README](./Testers/README.md) for all the options.
