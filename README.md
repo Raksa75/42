@@ -1,7 +1,7 @@
 # 42 Paris
 
-My projects from the **42 common core**, written in C following the 42 Norm, and a few
-personal projects made to practise.
+My projects from the **42 common core**, written in C following the 42 Norm, with exam
+training and a few personal projects made to practise.
 
 Each project has its own folder and its own `README.md` with a full description,
 compilation instructions and resources.
@@ -16,6 +16,15 @@ compilation instructions and resources.
 | push_swap | Sort a stack of numbers with a limited set of operations, with several strategies | 🚧 In progress |
 | [Testers](./Testers) | My own testers for these projects, with the `raksa` menu | ✅ Done |
 
+## Training
+
+Exercises to train for the 42 exams, each with its own tests.
+See the [Training README](./Training/README.md).
+
+| Exercise | Description | Status |
+|---|---|---|
+| [sort_list](./Training/SortList) | Sort a linked list with a comparison function | ✅ Done |
+
 ## Games
 
 Small personal projects, outside the 42 curriculum, to practise what I learned.
@@ -23,6 +32,7 @@ Small personal projects, outside the 42 curriculum, to practise what I learned.
 | Game | Description | Status |
 |---|---|---|
 | [Pierre Feuille Ciseaux](./Games/PFC) | Rock-paper-scissors in the terminal against the computer, with a menu and a score | ✅ Done |
+| [Morpion](./Games/Morpion) | Tic-tac-toe in the terminal, for two players or against the computer | 🚧 In progress |
 
 ## Repository structure
 
@@ -44,8 +54,12 @@ Small personal projects, outside the 42 curriculum, to practise what I learned.
 │   ├── get_next_line.h
 │   ├── get_next_line.c
 │   └── get_next_line_utils.c
+├── Training/                    # exam training
+│   ├── README.md
+│   └── SortList/
 ├── Games/                       # personal projects
-│   └── PFC/                     # rock-paper-scissors (uses ft_printf)
+│   ├── PFC/                     # rock-paper-scissors (uses ft_printf)
+│   └── Morpion/                 # tic-tac-toe (in progress)
 └── Testers/                     # testers for the projects
     ├── README.md
     ├── raksa.sh                 # the "raksa" menu
@@ -79,7 +93,7 @@ cd GetNextLine
 cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 get_next_line.c get_next_line_utils.c main.c
 ```
 
-**The games** have their own Makefile, which also builds the libraries they use:
+**The games and the training exercises** have their own Makefile:
 
 ```bash
 cd Games/PFC
