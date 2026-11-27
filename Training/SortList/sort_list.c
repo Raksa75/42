@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/27 12:37:45 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/27 13:30:22 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/27 13:44:32 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ void	sort_list(t_list **lst, int (*f)(int a, int b))
 			list_swap(temp, temp->next);
 			temp = *lst;
 		}
-
 		else
 			temp = temp->next;
 	}

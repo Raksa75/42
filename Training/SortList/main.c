@@ -6,7 +6,7 @@
 /*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/27 13:38:37 by nzimmerm          #+#    #+#             */
-/*   Updated: 2026/11/27 13:42:37 by nzimmerm         ###   ########.fr       */
+/*   Updated: 2026/11/27 13:44:15 by nzimmerm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,6 @@ static int	is_sorted(t_list *lst, int (*cmp)(int, int))
 	return (1);
 }
 
-/* compte combien de fois val apparait dans la liste */
 static int	count(t_list *lst, int val)
 {
 	int	n;
