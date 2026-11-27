@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nzimmerm <nzimmerm@learner.42.tech>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/27 13:38:37 by nzimmerm          #+#    #+#             */
+/*   Updated: 2026/11/27 13:38:55 by nzimmerm         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "list.h"
@@ -12,7 +24,6 @@ int	descending(int a, int b)
 	return (a >= b);
 }
 
-/* ajoute un element a la fin de la liste */
 static void	push_back(t_list **lst, int data)
 {
 	t_list	*new;
@@ -57,7 +68,6 @@ static void	free_list(t_list *lst)
 	}
 }
 
-/* construit une liste a partir d'un tableau, la trie et l'affiche */
 static void	test(char *name, int *tab, int size, int (*cmp)(int, int))
 {
 	t_list	*lst;
